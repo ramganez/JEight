@@ -9,5 +9,5 @@ urlpatterns = [
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('account.urls')),
-    url(r'^home/', include('roomexpenses.urls', namespace="roomexpenses")),
+    url(r'^roomexpenses/', include('roomexpenses.urls', namespace="roomexpenses")),
 ]

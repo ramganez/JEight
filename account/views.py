@@ -20,7 +20,7 @@ def signin(request):
                     login(request, user)
                     if request.GET.get('next'):
                         return redirect(request.GET.get('next'))
-                    return redirect('roomexpenses:home')
+                    return redirect('roomexpenses:month_expense')
             else:
                 form = SigninForm()
     else:

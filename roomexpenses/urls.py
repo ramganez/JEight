@@ -6,6 +6,6 @@ urlpatterns = [
     # url(r'^$', 'jeight.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    url(r'^$', TemplateView.as_view(template_name='roomexpenses/expenses.html'), name='home'),
-
+    # url(r'^$', TemplateView.as_view(template_name='roomexpenses/expenses.html'), name='home'),
+    url(r'^month_expense/$', TemplateView.as_view(template_name='roomexpenses/expenses.html'), name='month_expense'),
 ]
