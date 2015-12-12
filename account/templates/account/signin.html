@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="auth-form">
+            <h4 >Sign in to Jeight</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ signin_form }}
+                <input class="button-primary" value="Submit" type="submit">
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
