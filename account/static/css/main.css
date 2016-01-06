@@ -1,14 +1,48 @@
 
-.container {
+/* .container {
     position: absolute;
-    top: 20%;
+    top: 30%;
     left: 15%;
     text-align:center;
+    border:1px solid black
 }
 
+.auth-form{
+    top: 30%;
+    left: 15%;
+    border:1px solid #ff0000
+}
+
+.expense-form {
+    border:1px solid #ff0000
+}
+
+.invesment-form {
+    border:1px solid #ff0000
+}
 /* fixme later
 .error_css input {
     border:1px solid #ff0000
 }*/
 
-ul.errorlist {display:none;}
+*ul.errorlist {display:none;}
+
+
+.top{
+    position: absolute;
+    top: 30%;
+    left: 15%;
+    text-align:center;
+
+}
+
+.expense-form {
+    border:1px solid #ff0000;
+}
+
+.invesment-form {
+    border:1px solid #ff0000;
+}
+
+.middle{
+}

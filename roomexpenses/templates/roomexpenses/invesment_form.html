@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="invesment-form">
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form }}
+                
+                <h6> Adjucment From People</h6>
+                {{ adjusment_formset.non_form_errors }}
+                {{ adjusment_formset }}
+
+                <input class="button-primary" value="Next" type="submit">
+            </form>
+
+        </div>
+    </div>
+{% endblock content %}
+

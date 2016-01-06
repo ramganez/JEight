@@ -40,6 +40,8 @@ INSTALLED_APPS = (
 
     'account',
     'roomexpenses',
+
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (

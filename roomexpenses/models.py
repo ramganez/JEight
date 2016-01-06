@@ -53,3 +53,8 @@ class MonthInvesment(CommonInfo):
     def __unicode__(self):
         return self.created_on.strftime('%B')
 
+
+class AdjustmentFromPeople(CommonInfo):
+    fk_invesment = models.ForeignKey(MonthInvesment)
+    people_name = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits=7, decimal_places=2, default=0)
