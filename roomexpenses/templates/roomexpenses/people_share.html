@@ -15,8 +15,6 @@
                     <tr>
                         <th>Name</th>
                         <th>Share All</th>
-                        <th>MonthExpense</th>
-                        <th>MonthExpense</th>
                         <th>Food Only</th>
                         <th>Rent Only</th>
                     </tr>
@@ -26,11 +24,9 @@
                         {% for obj in object_list %}
                             <tr>
                                 <td>{{ obj.name|title }}</td>
-                                <td><input class='checkAll' type="checkbox" value="val{{ forloop.counter }}"/> </td>
-                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="1"/></td>
-                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="2"/></td>
-                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="3"/></td>
-                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="4"/></td>
+                                <td><input class='checkAll' type="checkbox" value="{{ forloop.counter }}"/> </td>
+                                <td><input type="checkbox" name="{{ forloop.counter }}" value="1"/></td>
+                                <td><input type="checkbox" name="{{ forloop.counter }}" value="2"/></td>
                             </tr>
                         {% endfor %}
 
