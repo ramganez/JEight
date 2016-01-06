@@ -1,10 +1,47 @@
 {% extends "base.html" %}
 
-{% block content %}
-    <div class="container">
-        <div class="people-share">
+{% block extrahead %}
 
-        </div>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="people-share">
+        <form action="{{ action_url }}" method="post" >
+            {% csrf_token %}
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Share All</th>
+                        <th>MonthExpense</th>
+                        <th>MonthExpense</th>
+                        <th>Food Only</th>
+                        <th>Rent Only</th>
+                    </tr>
+                </thead>
+                    <tbody>
+
+                        {% for obj in object_list %}
+                            <tr>
+                                <td>{{ obj.name|title }}</td>
+                                <td><input class='checkAll' type="checkbox" value="val{{ forloop.counter }}"/> </td>
+                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="1"/></td>
+                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="2"/></td>
+                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="3"/></td>
+                                <td><input type="checkbox" name="val{{ forloop.counter }}" value="4"/></td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+        </table>
+    <input class="button-primary" value="Next" type="submit">
+    </form>
+
     </div>
+</div>
+
 {% endblock content %}
+
 

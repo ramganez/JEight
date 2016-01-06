@@ -9,8 +9,8 @@
             <link rel='shortcut icon' type='image/x-icon' href="{% static 'images/fav-share.ico' %}" />
             <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
-            <!--<link rel="stylesheet" href="{% static 'css/normalize.css' %}">-->
-            <!--<link rel="stylesheet" href="{% static 'css/skeleton.css' %}">-->
+            <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+            <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">
             <link rel="stylesheet" href="{% static 'css/main.css' %}">
         {% endblock %}
 
@@ -19,6 +19,8 @@
 </head>
 
 <body style="background-color: #F7F7F7";>
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/main.js' %}" > </script>
 
 {% block content %}
 {% endblock content %}

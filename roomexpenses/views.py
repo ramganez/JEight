@@ -3,6 +3,7 @@ import ipdb
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView
+from django.views.generic import ListView
 
 from roomexpenses.forms import AFPFormSet
 
@@ -45,3 +46,25 @@ class MonthInvesmentCreate(CreateView):
 
     def get_success_url(self):
         return reverse('roomexpenses:people_share')
+
+
+class PeopleShareList(ListView):
+
+    def get_context_data(self, **kwargs):
+        context = super(PeopleShareList, self).get_context_data(**kwargs)
+        a_url = reverse('roomexpenses:month_share')
+        context.update({'action_url': a_url })
+        return context
+
+    def get_queryset(self):
+        qs = super(PeopleShareList, self).get_queryset()
+        result = qs.filter(is_deleted=False)
+        return result
+
+
+def month_share(request):
+    if request.POST:
+        ipdb.set_trace()
+        pass
+
+    return render(request, 'roomexpenses/month_share.html')

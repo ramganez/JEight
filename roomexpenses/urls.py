@@ -3,9 +3,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
 
-from roomexpenses.models import MonthExpense, MonthInvesment
+from roomexpenses.models import MonthExpense, MonthInvesment, RoomMember
 from roomexpenses.forms import MonthExpenseForm, MonthInvesmentForm
-from roomexpenses.views import MonthExpenesCreate, MonthInvesmentCreate
+from roomexpenses.views import (MonthExpenesCreate, MonthInvesmentCreate,
+                                PeopleShareList, month_share)
 
 urlpatterns = [
     # Examples:
@@ -22,5 +23,7 @@ urlpatterns = [
                                      template_name='roomexpenses/invesment_form.html'), name='month_invesment'),
 
     url(r'^people-share/$',
-        TemplateView.as_view(template_name='roomexpenses/people_share.html'), name='people_share'),
+        PeopleShareList.as_view(template_name='roomexpenses/people_share.html', model=RoomMember), name='people_share'),
+
+    url(r'^month-share/$', month_share, name='month_share'),
 ]
