@@ -2,8 +2,49 @@
 
 {% block content %}
     <div class="container">
+        <h4 >{{ data_dict.Month }} Expenses&Share Details</h4>
         <div class="month-share">
-            Displaying the result here...
+            <div class="monthexp-detail">
+                <table class="u-full-width">
+                    <thead>
+                        <tr>
+
+                            <th>Expense</th>
+                            <th>Invesment</th>
+                            <th>Total</th>
+
+                        </tr>
+                    </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ data_dict.MonthExp }}</td>
+                                <td>{{ data_dict.MonthInves }}</td>
+                                <td>{{ data_dict.Total }}</td>
+                            </tr>
+
+                        </tbody>
+                </table>
+            </div>
+            <div class="monthshare-detail">
+                <table class="u-full-width">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Shared</th>
+                            <th>Amount To Pay</th>
+                        </tr>
+                    </thead>
+                        <tbody>
+                            {% for indiv_obj in indiv_qs %}
+                            <tr>
+                                <td>{{ indiv_obj.fk_room_member.name }}</td>
+                                <td>{{ indiv_obj.get_shared_display }}</td>
+                                <td>{{ indiv_obj.amount_to_pay }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock content %}

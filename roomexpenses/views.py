@@ -1,7 +1,8 @@
 import ipdb
+import uuid
 import datetime
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
@@ -14,6 +15,8 @@ from roomexpenses.models import MonthExpense, MonthInvesment, RoomMember, Indivi
 
 
 def remove_duplicates(obj):
+    """get the current month object, remove(set is_deleted=True)
+    the other objects from the current model"""
 
     if isinstance(obj, MonthExpense):
         dub_objs = MonthExpense.objects.filter(created_on__month=obj.created_on.month)
@@ -27,11 +30,13 @@ def remove_duplicates(obj):
 
 
 def create_month_share(exp_obj=None, inves_obj=None):
+
     """Calculate the TotalExpense(Food+Rent) of given Month and separate the Rent and Food Exp"""
 
     def get_food_exp(exp_obj, inves_obj):
         return (exp_obj.cable + exp_obj.EB + exp_obj.water + exp_obj.commonEB + exp_obj.veg_shop +
-                inves_obj.provision_store + inves_obj.gas + inves_obj.rice_bag
+                exp_obj.other + inves_obj.provision_store + inves_obj.gas + inves_obj.rice_bag +
+                inves_obj.new_things
                 )
     data_dict = {
         'Month': '', 'MonthExp': 0, 'MonthInves': 0,
@@ -39,7 +44,7 @@ def create_month_share(exp_obj=None, inves_obj=None):
         }
 
     if exp_obj and inves_obj:
-        data_dict['month'] = exp_obj.created_on.strftime("%B")
+        data_dict['Month'] = exp_obj.created_on.strftime("%B")
         data_dict['MonthExp'] = exp_obj.get_total_exp()
         data_dict['MonthInves'] = inves_obj.get_total_inves()
         data_dict['Rent'] = exp_obj.rent + exp_obj.maintenance
@@ -51,39 +56,47 @@ def create_month_share(exp_obj=None, inves_obj=None):
         return data_dict
 
 
-def get_share_amount(data_dict, shared):
-    pass
-
-
 def create_individual_shares(data_dict=None, individual_choices=None):
+    rent_share_count = 0
+    food_share_count = 0
+    for v in individual_choices.values():
+        if '1' in v:
+            rent_share_count += 1
+        if '2' in v:
+            food_share_count += 1
+
+    rent_share = data_dict['Rent'] / rent_share_count
+    food_share = data_dict['Food'] / food_share_count
+    total_share = data_dict['Total']
+
+    unique_id = uuid.uuid4().hex
     for k, v in individual_choices.iteritems():
         room_mem_obj = RoomMember.objects.get(id=k)
         inves_obj = MonthInvesment.objects.get(is_deleted=False, created_on__month=datetime.datetime.now().month)
+
+        # fixme its needed??
         afp_obj = inves_obj.adjustmentfrompeople_set.all()
-        # fk_afp
-        # shared
-        # amount_to_pay
 
-        indiv_share_obj = IndividualShare.create(fk_room_member=room_mem_obj)
+        indiv_share_obj = IndividualShare(fk_room_member=room_mem_obj, set_unique_no=unique_id)
+        remove_duplicates(indiv_share_obj)
         if '1' in individual_choices[k] and '2' in individual_choices[k]:
-            shared = 'All'
+            indiv_share_obj.shared = 0
+            indiv_share_obj.amount_to_pay = rent_share + food_share
 
-        elif '1' in individual_choices[k] and '2' in individual_choices[k]:
-            shared = 'Food Only'
+        elif '1' in individual_choices[k]:
+            indiv_share_obj.shared = 1
+            indiv_share_obj.amount_to_pay = rent_share
 
-        elif '1' in individual_choices[k] and '2' in individual_choices[k]:
-            shared = 'Rent Only'
+        elif '2' in individual_choices[k]:
+            indiv_share_obj.shared = 2
+            indiv_share_obj.amount_to_pay = food_share
 
-        else:
-            shared = None
+        indiv_share_obj.save()
 
-        indiv_share_obj.shared = shared
-
-
-
-
-
-    pass
+    dub_objs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month).exclude(
+            set_unique_no=unique_id)
+    dub_objs.update(is_deleted=True)
+    return data_dict
 
 
 class MonthExpenesCreate(CreateView):
@@ -160,10 +173,8 @@ class PeopleShareList(ListView):
 def month_share(request):
 
     if request.POST:
-        ipdb.set_trace()
-
         try:
-            current_exp = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month)
+            current_exp = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False)
         except:
             raise Http404("Month Expense does not exist")
 
@@ -182,6 +193,11 @@ def month_share(request):
             except:
                 continue
 
-        create_individual_shares(data_dict, individual_choices)
+        data_dict = create_individual_shares(data_dict, individual_choices)
+        indiv_qs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month, is_deleted=False)
 
-    return render(request, 'roomexpenses/month_share.html')
+        return render(request, 'roomexpenses/month_share.html', {'indiv_qs':indiv_qs, 'data_dict': data_dict})
+
+    else:
+        # return render(request, 'roomexpenses/month_share.html')
+        return redirect('signin')

@@ -15,14 +15,14 @@
 
 
      <div class="container top">
-       <div class="auth-form">
-            <h4 >Sign in to Jeight</h4>
+        <h4 >Sign in to Jeight</h4>
+        <div class="auth-form">
             <form method="post">
                 {% csrf_token %}
                 {{ signin_form }}
                 <input class="button-primary" value="Submit" type="submit">
             </form>
-         </div>
-     </div>
+        </div>
+    </div>
 {% endblock content %}
 

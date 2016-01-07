@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 from datetime import datetime
@@ -69,10 +70,16 @@ class AdjustmentFromPeople(CommonInfo):
 
 
 class IndividualShare(CommonInfo):
-    fk_room_member = models.OneToOneField(RoomMember, unique=True)
-    fk_afp = models.ForeignKey(AdjustmentFromPeople, blank=True, null=True)
-    shared = models.CharField(max_length=10, default='All')
+    share_choice = (
+        (0, 'All'),
+        (1, 'Rent Only'),
+        (2, 'Food Only'),
+    )
+
+    fk_room_member = models.ForeignKey(RoomMember, blank=True, null=True)
+    shared = models.IntegerField(choices=share_choice, default=0)
     amount_to_pay = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    set_unique_no = models.CharField(max_length=32, default=uuid.uuid4().hex)
 
     def __unicode__(self):
         return "month_share: %s" % self.fk_room_member.name
