@@ -1,48 +1,73 @@
+body{
+	background:#F7F7F7;
+}
+.clear{
+    clear:both;
+    visibility:hidden;
+    overflow:hidden;
+    height:0;
+    }
+#wrapper{
+    width:100%;
+    }
+.header{
+    border-bottom:1px solid #eee;;
+    margin-bottom:20px;
+    padding:10px 0;
+    }
+.navbar ul{
+    float:right;
+    margin:0;
+    }
+.navbar li{
+    list-style:none;
+    margin:10px;
+    float:left;
+    }
+.navbar li a{
+    text-decoration:none;
+    color:#666;
+    padding:5px 10px;
+    }
+.navbar li a:hover{
+    text-decoration:none;
+    color:black;
+    }
+.container_inner{}
+.banner{
+    padding:5px;
+    }
+.banner h4 {
+    margin: 0;
+    text-align: center;
+}
+.banner .signin-page {
+    margin:100px 0;
+}
+.content_section{
+    margin:20px 0;
+    }
 
-/* .container {
-    position: absolute;
-    top: 30%;
-    left: 15%;
-    text-align:center;
-    border:1px solid black
+.content_section .auth-form{
+    text-align: center;
+    }
+
+.content_section .expense-form{
+    text-align: center;
+    }
+
+.content_section .people-share{
+    text-align: center;
+    }
+
+.content_section .expense-form{
+    text-align: center;
+    }
+
+.btnprev{
+    float:left;
 }
 
-.auth-form{
-    top: 30%;
-    left: 15%;
-    border:1px solid #ff0000
-}
-
-.expense-form {
-    border:1px solid #ff0000
-}
-
-.invesment-form {
-    border:1px solid #ff0000
-}
-/* fixme later
-.error_css input {
-    border:1px solid #ff0000
-}*/
-
-*ul.errorlist {display:none;}
-
-
-.top{
-    position: absolute;
-    top: 30%;
-    left: 15%;
-    text-align:center;
-
-}
-
-.expense-form {
-    border:1px solid #ff0000;
-}
-
-.invesment-form {
-    border:1px solid #ff0000;
-}
-
-.middle{
+.btnnext{
+    float:right;
 }

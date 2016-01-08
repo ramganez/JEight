@@ -5,26 +5,42 @@
     <title> {% block title %} jeight {% endblock %} </title>
 
     {% load staticfiles %}
-        {% block head %}
-            <link rel='shortcut icon' type='image/x-icon' href="{% static 'images/fav-share.ico' %}" />
-            <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+    {% block head %}
+    <link rel='shortcut icon' type='image/x-icon' href="{% static 'images/fav-share.ico' %}"/>
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
-            <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
-            <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">
-            <link rel="stylesheet" href="{% static 'css/main.css' %}">
-        {% endblock %}
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/static/js/main.js" > </script>
 
-        {% block extrahead %}
-        {% endblock %}
+    {% endblock %}
+
+    {% block extrahead %}
+    {% endblock %}
+
 </head>
 
-<body style="background-color: #F7F7F7";>
-    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="{% static 'js/main.js' %}" > </script>
+</body>
+    <div id="wrapper">
 
-{% block content %}
-{% endblock content %}
+        {% block nav %}
+        {% endblock %}
 
+        <div class="container">
+            <div class="container_inner">
+                <div class="banner">
+                    {% block content_head %}
+                    {% endblock %}
+                </div>
+                <div class="content_section">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

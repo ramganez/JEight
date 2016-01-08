@@ -1,7 +1,8 @@
 from django.conf.urls import include, url
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, TemplateView
 
-from account.views import signin
+
+from account.views import signin, signout
 
 
 urlpatterns = [
@@ -11,4 +12,6 @@ urlpatterns = [
 
     url(r'^$', RedirectView.as_view(pattern_name='signin'), name='go-to-signin'),
     url(r'^signin/$', signin, name='signin'),
+    url(r'^signout/$', signout, name='signout'),
+    url(r'^ske/$', TemplateView.as_view(template_name='account/ske.html'), name='signin'),
 ]

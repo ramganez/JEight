@@ -1,21 +1,37 @@
-{% extends "base.html" %}
+{% extends "roomexpenses/expenses_form.html" %}
+{% load floppyforms %}
+
+
+{% block content_head %}
+    <h4>{% now "F" %} - Invesment and AdjustmentFromPeople </h4>
+{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="invesment-form">
+    <div class="expense-form">
+        {% form form using %}
+        <form method="post">
+            {% csrf_token %}
+            {% formconfig row using "floppyforms/rows/p.html" %}
 
-            <form method="post">
-                {% csrf_token %}
-                {{ form }}
-                
-                <h6> Adjucment From People</h6>
-                {{ adjusment_formset.non_form_errors }}
-                {{ adjusment_formset }}
+            <div class="row">
+            <div class="six columns">
+                {% formrow form.provision_store %}
+                {% formrow form.new_things %}
+                {% formrow form.gas %}
+                {% formrow form.rice_bag %}
+            </div>
 
-                <input class="button-primary" value="Next" type="submit">
-            </form>
-
-        </div>
+            <div class="six columns">
+                {{ adjusment_formset.management_form }}
+                {% for adform in adjusment_formset %}
+                    <p>{{ adform.people_name.label_tag }}{{ adform.people_name }}</p>
+                    <p>{{ adform.amount.label_tag }}{{ adform.amount }}</p>
+                {% endfor %}
+            </div>
+            </div>
+            <a class="button button-primary btnprev" href="#">Previous</a>
+            <input class="button-primary btnnext" value="Next" type="submit">
+        </form>
+        {% endform %}
     </div>
-{% endblock content %}
-
+{% endblock %}

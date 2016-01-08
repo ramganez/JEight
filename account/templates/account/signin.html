@@ -1,21 +1,10 @@
 {% extends "base.html" %}
 
-{% block content %}
-    <!--<div class="container">-->
-        <!--<div class="auth-form">-->
-            <!--<h4 >Sign in to Jeight</h4>-->
-            <!--<form method="post">-->
-                <!--{% csrf_token %}-->
-                <!--{{ signin_form }}-->
-                <!--<input class="button-primary" value="Submit" type="submit">-->
-            <!--</form>-->
-        <!--</div>-->
-    <!--</div>-->
+    {% block content_head %}
+        <h4 class="signin-page">Sign in to J-Eight</h4>
+    {% endblock %}
 
-
-
-     <div class="container top">
-        <h4 >Sign in to Jeight</h4>
+    {% block content %}
         <div class="auth-form">
             <form method="post">
                 {% csrf_token %}
@@ -23,6 +12,4 @@
                 <input class="button-primary" value="Submit" type="submit">
             </form>
         </div>
-    </div>
-{% endblock content %}
-
+    {% endblock %}

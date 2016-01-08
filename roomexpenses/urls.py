@@ -26,4 +26,5 @@ urlpatterns = [
         PeopleShareList.as_view(template_name='roomexpenses/people_share.html', model=RoomMember), name='people_share'),
 
     url(r'^month-share/$', month_share, name='month_share'),
+
 ]

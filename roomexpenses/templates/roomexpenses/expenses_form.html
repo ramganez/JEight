@@ -1,15 +1,50 @@
 {% extends "base.html" %}
+{% load floppyforms %}
 
-{% block content %}
-    <div class="container">
-        <div class="expense-form">
-        <form method="post">
-            {% csrf_token %}
-            {{ form }}
-            <input class="button-primary" value="Next" type="submit">
-        </form>
+{% block nav %}
+    <div class="header">
+        <div class="container">
+            <nav class="navbar">
+                <ul class="navbar-list">
+                    <li class="navbar-item"><a href="#">View History</a></li>
+                    <li class="navbar-item"><a href="{% url 'signout' %}">Signout</a></li>
+                </ul>
+            <div class="clear"></div>
+            </nav>
         </div>
     </div>
+{% endblock %}
 
-{% endblock content %}
+{% block content_head %}
+    <h4>Prev Month Expense Detail</h4>
+{% endblock %}
+
+{% block content %}
+    <div class="expense-form">
+        {% form form using %}
+        <form method="post">
+            {% csrf_token %}
+            {% formconfig row using "floppyforms/rows/p.html" %}
+
+            <div class="row">
+            <div class="six columns">
+                {% formrow form.rent %}
+                {% formrow form.maintenance %}
+                {% formrow form.cable %}
+                {% formrow form.EB %}
+            </div>
+
+            <div class="six columns">
+                {% formrow form.water %}
+                {% formrow form.commonEB %}
+                {% formrow form.veg_shop %}
+                {% formrow form.other%}
+            </div>
+            </div>
+
+            <input class="button-primary btnnext" value="Next" type="submit">
+        </form>
+        {% endform %}
+    </div>
+{% endblock %}
 

@@ -40,7 +40,7 @@ def create_month_share(exp_obj=None, inves_obj=None):
                 )
     data_dict = {
         'Month': '', 'MonthExp': 0, 'MonthInves': 0,
-        'Rent': 0, 'Food': 0, 'Total': 0,
+        'Rent': 0, 'Rent-Adjustment':0, 'Food': 0, 'Total': 0,
         }
 
     if exp_obj and inves_obj:
@@ -48,6 +48,8 @@ def create_month_share(exp_obj=None, inves_obj=None):
         data_dict['MonthExp'] = exp_obj.get_total_exp()
         data_dict['MonthInves'] = inves_obj.get_total_inves()
         data_dict['Rent'] = exp_obj.rent + exp_obj.maintenance
+
+        data_dict['Rent-Adjustment'] = exp_obj.rent + exp_obj.maintenance - inves_obj.get_total_adjustment()
         data_dict['Food'] = get_food_exp(exp_obj, inves_obj)
         data_dict['Total'] = exp_obj.get_total_exp() + inves_obj.get_total_inves()
         return data_dict
@@ -65,7 +67,7 @@ def create_individual_shares(data_dict=None, individual_choices=None):
         if '2' in v:
             food_share_count += 1
 
-    rent_share = data_dict['Rent'] / rent_share_count
+    rent_share = data_dict['Rent-Adjustment'] / rent_share_count
     food_share = data_dict['Food'] / food_share_count
     total_share = data_dict['Total']
 

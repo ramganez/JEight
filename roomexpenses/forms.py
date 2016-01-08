@@ -16,6 +16,11 @@ class MonthExpenseForm(ModelForm):
                   'EB', 'water', 'commonEB',
                   'veg_shop', 'other']
 
+    def __init__(self, *args, **kwargs):
+        super(MonthExpenseForm, self).__init__(*args, **kwargs)
+        for key in self.fields.keys():
+            self.fields[key].widget = TextInput()
+
 
 class MonthInvesmentForm(ModelForm):
 

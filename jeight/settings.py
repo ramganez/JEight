@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'roomexpenses',
 
     'django_extensions',
+    'floppyforms',
 )
 
 MIDDLEWARE_CLASSES = (

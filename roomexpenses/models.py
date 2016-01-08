@@ -62,6 +62,13 @@ class MonthInvesment(CommonInfo):
         return (self.provision_store + self.new_things +
                 self.gas + self.rice_bag)
 
+    def get_total_adjustment(self):
+        afp_objs = self.adjustmentfrompeople_set.all()
+        total = 0
+        for i in afp_objs:
+            total += i.amount
+        return total
+
 
 class AdjustmentFromPeople(CommonInfo):
     fk_invesment = models.ForeignKey(MonthInvesment)
