@@ -3,10 +3,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
 
-from roomexpenses.models import MonthExpense, MonthInvesment, RoomMember
-from roomexpenses.forms import MonthExpenseForm, MonthInvesmentForm
-from roomexpenses.views import (MonthExpenesCreate, MonthInvesmentCreate,
-                                PeopleShareList, month_share)
+from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember
+from roomexpenses.forms import MonthExpenseForm, MonthInvestmentForm
+from roomexpenses.views import (MonthExpenesCreate, MonthInvestmentCreate,
+                                PeopleShareList, month_share, expenses_history)
 
 urlpatterns = [
     # Examples:
@@ -18,13 +18,15 @@ urlpatterns = [
         MonthExpenesCreate.as_view(form_class=MonthExpenseForm,
                                    template_name='roomexpenses/expenses_form.html'), name='month_expense'),
 
-    url(r'^month-invesment/$',
-        MonthInvesmentCreate.as_view(form_class=MonthInvesmentForm,
-                                     template_name='roomexpenses/invesment_form.html'), name='month_invesment'),
+    url(r'^month-investment/$',
+        MonthInvestmentCreate.as_view(form_class=MonthInvestmentForm,
+                                     template_name='roomexpenses/investment_form.html'), name='month_investment'),
 
     url(r'^people-share/$',
         PeopleShareList.as_view(template_name='roomexpenses/people_share.html', model=RoomMember), name='people_share'),
 
     url(r'^month-share/$', month_share, name='month_share'),
+
+    url(r'^expenses-history/(?P<month>[0-9]+)/(?P<year>[0-9]+)$', expenses_history, name='expenses_history'),
 
 ]

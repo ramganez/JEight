@@ -7,9 +7,11 @@ from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 from django.http import Http404
+from django.core import serializers
+
 
 from roomexpenses.forms import AFPFormSet
-from roomexpenses.models import MonthExpense, MonthInvesment, RoomMember, IndividualShare
+from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare
 
 # Create your views here.
 
@@ -23,8 +25,8 @@ def remove_duplicates(obj):
         dub_objs.update(is_deleted=True)
         return True
 
-    elif isinstance(obj, MonthInvesment):
-        dub_objs = MonthInvesment.objects.filter(created_on__month=obj.created_on.month)
+    elif isinstance(obj, MonthInvestment):
+        dub_objs = MonthInvestment.objects.filter(created_on__month=obj.created_on.month)
         dub_objs.update(is_deleted=True)
         return True
 
@@ -74,7 +76,7 @@ def create_individual_shares(data_dict=None, individual_choices=None):
     unique_id = uuid.uuid4().hex
     for k, v in individual_choices.iteritems():
         room_mem_obj = RoomMember.objects.get(id=k)
-        inves_obj = MonthInvesment.objects.get(is_deleted=False, created_on__month=datetime.datetime.now().month)
+        inves_obj = MonthInvestment.objects.get(is_deleted=False, created_on__month=datetime.datetime.now().month)
 
         # fixme its needed??
         afp_obj = inves_obj.adjustmentfrompeople_set.all()
@@ -114,10 +116,10 @@ class MonthExpenesCreate(CreateView):
         return super(MonthExpenesCreate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('roomexpenses:month_invesment')
+        return reverse('roomexpenses:month_investment')
 
 
-class MonthInvesmentCreate(CreateView):
+class MonthInvestmentCreate(CreateView):
 
     def form_valid(self, form):
         """
@@ -126,10 +128,10 @@ class MonthInvesmentCreate(CreateView):
         monthinves_obj = form.save(commit=False)
         remove_duplicates(monthinves_obj)
 
-        return super(MonthInvesmentCreate, self).form_valid(form)
+        return super(MonthInvestmentCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super(MonthInvesmentCreate, self).get_context_data(**kwargs)
+        context = super(MonthInvestmentCreate, self).get_context_data(**kwargs)
 
         if self.request.POST:
             context['adjusment_formset'] = AFPFormSet(self.request.POST)
@@ -139,7 +141,7 @@ class MonthInvesmentCreate(CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        super(MonthInvesmentCreate, self).post(request, *args, **kwargs)
+        super(MonthInvestmentCreate, self).post(request, *args, **kwargs)
         form = self.get_form()
         if form.is_valid():
             inves_obj = form.save()
@@ -174,17 +176,17 @@ class PeopleShareList(ListView):
 
 def month_share(request):
 
-    if request.POST:
+    if request.method == 'POST':
         try:
             current_exp = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False)
         except:
             raise Http404("Month Expense does not exist")
 
         try:
-            current_inves = MonthInvesment.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False)
+            current_inves = MonthInvestment.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False)
 
         except:
-            raise Http404("Month Invesment does not exist")
+            raise Http404("Month Investment does not exist")
 
         data_dict = create_month_share(exp_obj=current_exp, inves_obj=current_inves)
 
@@ -193,6 +195,7 @@ def month_share(request):
         for key, value in request.POST.iteritems():
             try:
                 individual_choices[int(key)] = request.POST.getlist(key)
+
             except:
                 continue
 
@@ -207,4 +210,51 @@ def month_share(request):
 
     else:
         # return render(request, 'roomexpenses/month_share.html')
+        return redirect('signin')
+
+
+def expenses_history(request, **kwargs):
+    if request.method == 'GET':
+
+        exp_fields = ('rent', 'maintenance', 'veg_shop',
+                      'water', 'EB', 'commonEB', 'other')
+
+        inves_fields = ('provision_store', 'gas', 'rice_bag',
+                        'new_things')
+
+        try:
+            exp_obj= MonthExpense.objects.filter(created_on__month=kwargs['month'],
+                                            created_on__year=kwargs['year'], is_deleted=False)
+
+            exp_data = serializers.serialize("python", exp_obj,
+                                             fields=exp_fields)[0]
+        except:
+            exp_data = None
+
+        try:
+            inves_obj = MonthInvestment.objects.filter(created_on__month=kwargs['month'],
+                                                created_on__year=kwargs['year'], is_deleted=False)
+            inves_data = serializers.serialize( "python", inves_obj, fields=inves_fields)[0]
+
+        except:
+            inves_data = None
+
+        try:
+            indiv_qs = IndividualShare.objects.filter(created_on__month=kwargs['month'],
+                                                       created_on__year=kwargs['year'], is_deleted=False)
+
+        except:
+            indiv_qs = None
+
+        # for showing afp details
+        try:
+            afp_objs = inves_obj[0].adjustmentfrompeople_set.all()
+        except:
+            afp_objs=None
+
+        return render(request, 'roomexpenses/expenses_history.html', {'exp_data': exp_data, 'inves_data': inves_data,
+                                                                      'afp_objs': afp_objs, 'indiv_qs': indiv_qs})
+
+    else:
+        # fixme later
         return redirect('signin')

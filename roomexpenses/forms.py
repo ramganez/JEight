@@ -22,15 +22,15 @@ class MonthExpenseForm(ModelForm):
             self.fields[key].widget = TextInput()
 
 
-class MonthInvesmentForm(ModelForm):
+class MonthInvestmentForm(ModelForm):
 
     class Meta:
-        model = MonthInvesment
+        model = MonthInvestment
         fields = ['provision_store', 'new_things',
                   'gas', 'rice_bag']
 
     def __init__(self, *args, **kwargs):
-        super(MonthInvesmentForm, self).__init__(*args, **kwargs)
+        super(MonthInvestmentForm, self).__init__(*args, **kwargs)
         for key in self.fields.keys():
             self.fields[key].widget = TextInput()
 
@@ -47,5 +47,5 @@ class MonthInvesmentForm(ModelForm):
 #                 raise forms.ValidationError("Please enter the name")
 #             return data
 
-AFPFormSet = inlineformset_factory(MonthInvesment, AdjustmentFromPeople, fields=('people_name', 'amount'),
+AFPFormSet = inlineformset_factory(MonthInvestment, AdjustmentFromPeople, fields=('people_name', 'amount'),
                                    extra=2)

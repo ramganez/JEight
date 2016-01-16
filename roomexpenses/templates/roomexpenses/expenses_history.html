@@ -1,0 +1,134 @@
+{% extends "roomexpenses/expenses_form.html" %}
+
+
+{% block content_headx %}
+    <h4>{% now "F" %} - Month Expenses & Investments Details</h4>
+{% endblock %}
+
+
+{% block contentx %}
+    <div class="expense-form">
+
+        <div class="row">
+
+            <div class="four columns">
+                <div class="monthexp-detail">
+
+                    <table class="u-full-width">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;" colspan="2"><h5>Expenses</h5></th>
+                            </tr>
+                            <tr>
+                                <th>Expense Details</th>
+                                <th>Amount</th>
+
+                            </tr>
+                        </thead>
+                            <tbody>
+
+                                {% for field, value in exp_data.fields.items %}
+                                <tr>
+                                    <td>{{ field }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% empty %}
+                                    <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                                {% endfor %}
+                            </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="four columns">
+                <div class="monthinves-detail">
+
+                    <table class="u-full-width">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;" colspan="2"><h5>Investment</h5></th>
+                            </tr>
+                            <tr>
+                                <th>Investment Details</th>
+                                <th>Amount</th>
+
+                            </tr>
+                        </thead>
+                            <tbody>
+
+                                {% for field, value in inves_data.fields.items %}
+                                <tr>
+                                    <td>{{ field }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% empty %}
+                                    <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                                {% endfor %}
+                            </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="four columns">
+                <div class="afp-detail">
+                    <table class="u-full-width">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;" colspan="3"><h5>Adjustment From People </h5></th>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                            <tbody>
+                                {% for afp_obj in afp_objs %}
+                                <tr>
+                                    <td>{{ afp_obj.people_name }}</td>
+                                    <td>{{ afp_obj.amount }}</td>
+                                </tr>
+                                {% empty %}
+                                    <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                                {% endfor %}
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="monthshare-detail">
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;" colspan="3"><h5>Share Details</h5></th>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Shared</th>
+                        <th>Amount To Pay</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        {% for indiv_obj in indiv_qs %}
+                        <tr>
+                            <td>{{ indiv_obj.fk_room_member.name }}</td>
+                            <td>{{ indiv_obj.get_shared_display }}</td>
+                            <td>{{ indiv_obj.amount_to_pay }}</td>
+                        </tr>
+                        {% empty %}
+                            <th style="text-align: center; color: #666;" colspan="3">Blah Blah!!!...</th>
+                        {% endfor %}
+                    </tbody>
+            </table>
+        </div>
+
+
+    </div>
+{% endblock %}
+
+

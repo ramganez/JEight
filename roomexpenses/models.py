@@ -49,7 +49,7 @@ class MonthExpense(CommonInfo):
                 self.EB + self.water + self.commonEB + self.veg_shop + self.other)
 
 
-class MonthInvesment(CommonInfo):
+class MonthInvestment(CommonInfo):
     provision_store = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     new_things = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     gas = models.DecimalField(max_digits=7, decimal_places=2, default=0)
@@ -71,7 +71,7 @@ class MonthInvesment(CommonInfo):
 
 
 class AdjustmentFromPeople(CommonInfo):
-    fk_invesment = models.ForeignKey(MonthInvesment)
+    fk_investment = models.ForeignKey(MonthInvestment)
     people_name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0)
 

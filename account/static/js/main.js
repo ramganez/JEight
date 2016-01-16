@@ -15,7 +15,6 @@ $(document).ready(function(){
 
 
 
-
 function toggleBox(toggled, checked) {
     var objList = document.getElementsByName(toggled)
 

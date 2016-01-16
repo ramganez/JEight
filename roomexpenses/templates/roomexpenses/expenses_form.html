@@ -6,7 +6,15 @@
         <div class="container">
             <nav class="navbar">
                 <ul class="navbar-list">
-                    <li class="navbar-item"><a id="date-picker" href="#">View History</a></li>
+
+                    {% now 'm' as copymonth %}
+                    {% now 'Y' as copyyear %}
+
+                    <li class="navbar-item">
+                        <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=copymonth year=copyyear %}">
+                        View History</a>
+                    </li>
+                    <li class="navbar-item"><a href="{% url 'roomexpenses:month_expense' %}">Home</a></li>
                     <li class="navbar-item"><a href="{% url 'signout' %}">Signout</a></li>
                 </ul>
             <div class="clear"></div>
