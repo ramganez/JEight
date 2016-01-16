@@ -15,6 +15,12 @@ body{
     margin-bottom:20px;
     padding:10px 0;
     }
+
+.content_sectionx{
+    width:98%;
+    margin:0px 12px;
+    }
+
 .navbar ul{
     float:right;
     margin:0;
@@ -33,7 +39,10 @@ body{
     text-decoration:none;
     color:black;
     }
-.container_inner{}
+.container_inner{
+
+}
+
 .banner{
     padding:5px;
     }
@@ -42,8 +51,9 @@ body{
     text-align: center;
 }
 .banner .signin-page {
-    margin:100px 0;
+    margin:200px 0 0;
 }
+
 .content_section{
     margin:20px 0;
     }
@@ -51,6 +61,14 @@ body{
 .content_section .auth-form{
     text-align: center;
     }
+
+.content_section .auth-form .errorlist {
+    display: none;
+}
+
+.content_section .auth-form .required_error {
+    border: 1px red solid;
+}
 
 .content_section .expense-form{
     text-align: center;
@@ -71,3 +89,10 @@ body{
 .btnnext{
     float:right;
 }
+
+
+/* for date picker
+.ui-datepicker-calendar {
+    display: none;
+    }
+*/

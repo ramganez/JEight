@@ -2,7 +2,7 @@
 
 
 {% block content_head %}
-    <h4 >{% now "F" %} - Expenses&Share Details</h4>
+
 {% endblock %}
 
 {% block content %}
@@ -10,9 +10,11 @@
     <div class="month-share">
         <div class="monthexp-detail">
             <table class="u-full-width">
-                <thead>
+                    <thead>
                     <tr>
-
+                        <th style="text-align: center;" colspan="3"><h5>Expense & Invesment</h5></th>
+                    </tr>
+                    <tr>
                         <th>Expense</th>
                         <th>Invesment</th>
                         <th>Total</th>
@@ -28,10 +30,39 @@
 
                     </tbody>
             </table>
+
         </div>
+
+        <div class="afp-detail">
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;" colspan="3"><h5>Adjustment From People </h5></th>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        {% for afp_obj in afp_objs %}
+                        <tr>
+                            <td>{{ afp_obj.people_name }}</td>
+                            <td>{{ afp_obj.amount }}</td>
+                        </tr>
+                        {% empty %}
+                            <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                        {% endfor %}
+                    </tbody>
+            </table>
+        </div>
+
         <div class="monthshare-detail">
             <table class="u-full-width">
                 <thead>
+                    <tr>
+                        <th style="text-align: center;" colspan="3"><h5>Share Details</h5></th>
+                    </tr>
                     <tr>
                         <th>Name</th>
                         <th>Shared</th>
@@ -45,10 +76,13 @@
                             <td>{{ indiv_obj.get_shared_display }}</td>
                             <td>{{ indiv_obj.amount_to_pay }}</td>
                         </tr>
+                        {% empty %}
+                            <th style="text-align: center; color: #666;" colspan="3">Blah Blah!!!...</th>
                         {% endfor %}
                     </tbody>
             </table>
         </div>
+
     </div>
 
 {% endblock content %}

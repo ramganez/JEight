@@ -182,6 +182,7 @@ def month_share(request):
 
         try:
             current_inves = MonthInvesment.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False)
+
         except:
             raise Http404("Month Invesment does not exist")
 
@@ -198,7 +199,11 @@ def month_share(request):
         data_dict = create_individual_shares(data_dict, individual_choices)
         indiv_qs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month, is_deleted=False)
 
-        return render(request, 'roomexpenses/month_share.html', {'indiv_qs':indiv_qs, 'data_dict': data_dict})
+        # for showing afp details
+        afp_objs = current_inves.adjustmentfrompeople_set.all()
+
+        return render(request, 'roomexpenses/month_share.html', {'indiv_qs':indiv_qs, 'data_dict': data_dict,
+                                                                 'afp_objs': afp_objs})
 
     else:
         # return render(request, 'roomexpenses/month_share.html')

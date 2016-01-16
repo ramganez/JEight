@@ -6,7 +6,7 @@
         <div class="container">
             <nav class="navbar">
                 <ul class="navbar-list">
-                    <li class="navbar-item"><a href="#">View History</a></li>
+                    <li class="navbar-item"><a id="date-picker" href="#">View History</a></li>
                     <li class="navbar-item"><a href="{% url 'signout' %}">Signout</a></li>
                 </ul>
             <div class="clear"></div>
@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content_head %}
-    <h4>Prev Month Expense Detail</h4>
+    <h4>{% now "F" %} - Month Expense Detail</h4>
 {% endblock %}
 
 {% block content %}

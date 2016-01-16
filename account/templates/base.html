@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <script language="JavaScript" type="text/javascript" src="/static/js/jquery-1.12.0.min.js"></script>
     <script type="text/javascript" src="/static/js/main.js" > </script>
 
     {% endblock %}
@@ -28,19 +29,36 @@
         {% block nav %}
         {% endblock %}
 
+        <div class="content_sectionx">
+            <div class="container_inner">
+                <div class="banner">
+                    {% block content_headx %}
+                    {% endblock %}
+                </div>
+
+                <div class="content_section">
+                    {% block contentx %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+
         <div class="container">
             <div class="container_inner">
                 <div class="banner">
                     {% block content_head %}
                     {% endblock %}
                 </div>
+
                 <div class="content_section">
                     {% block content %}
                     {% endblock %}
                 </div>
             </div>
         </div>
+
     </div>
+
 </body>
 
 </html>

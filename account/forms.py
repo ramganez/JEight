@@ -10,8 +10,8 @@ class SigninForm(forms.ModelForm):
         model = User
         fields = ['username', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'username', 'class': 'foo-class'}),
-            'password': forms.PasswordInput(attrs={'placeholder': 'password', 'class': 'foo-class'}),
+            'username': forms.TextInput(attrs={'placeholder': 'username', }),
+            'password': forms.PasswordInput(attrs={'placeholder': 'password', }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -20,6 +20,7 @@ class SigninForm(forms.ModelForm):
         self.fields['username'].label = ''
         self.fields['password'].label = ''
         self.error_css_class = 'error_css'
+        self.required_css_class = "required"
 
     def clean(self):
         username = self.cleaned_data.get('username')
@@ -30,3 +31,10 @@ class SigninForm(forms.ModelForm):
             raise forms.ValidationError("Incorrect username or password")
 
         return self.cleaned_data
+
+    def is_valid(self):
+        result = super(SigninForm, self).is_valid()
+        if self.errors:
+            self.fields['username'].widget.attrs.update({'class':  'required_error'})
+            self.fields['password'].widget.attrs.update({'class':  'required_error'})
+        return result

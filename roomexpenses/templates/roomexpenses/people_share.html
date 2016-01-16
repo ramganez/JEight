@@ -21,15 +21,19 @@
                         {% for obj in object_list %}
                             <tr>
                                 <td>{{ obj.name|title }}</td>
-                                <td><input class='checkAll' type="checkbox" value="{{ forloop.counter }}"/> </td>
+                                <td><input class='checkAll' type="checkbox" name="checkAll" value="{{ forloop.counter }}"/> </td>
                                 <td><input type="checkbox" name="{{ forloop.counter }}" value="1"/></td>
                                 <td><input type="checkbox" name="{{ forloop.counter }}" value="2"/></td>
                             </tr>
+                        {% empty %}
+
+                            <td> <h5 style="color: #d1d1d1;"> Add your Roommates Details in Admin Page... </h5> </td>
+
                         {% endfor %}
                     </tbody>
             </table>
         <a class="button button-primary btnprev" href="#">Previous</a>
-        <input class="button-primary btnnext" value="Next" type="submit">
+        <input id="complete" class="complete btnnext" value="Complete" type="submit", disabled>
         </form>
     </div>
 {% endblock %}
