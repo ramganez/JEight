@@ -91,6 +91,12 @@ body{
 }
 
 
+/* expense history table */
+
+.boldme {
+    font-weight: bold;
+}
+
 /* for date picker
 .ui-datepicker-calendar {
     display: none;

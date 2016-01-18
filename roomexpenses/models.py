@@ -42,7 +42,7 @@ class MonthExpense(CommonInfo):
     other = models.DecimalField(max_digits=7, decimal_places=2, default=0)
 
     def __unicode__(self):
-        return self.created_on.strftime('%B')
+        return "Expense- %s" % self.created_on.strftime('%B')
 
     def get_total_exp(self):
         return (self.rent + self.maintenance + self.cable +
@@ -86,7 +86,7 @@ class IndividualShare(CommonInfo):
     fk_room_member = models.ForeignKey(RoomMember, blank=True, null=True)
     shared = models.IntegerField(choices=share_choice, default=0)
     amount_to_pay = models.DecimalField(max_digits=7, decimal_places=2, default=0)
-    set_unique_no = models.CharField(max_length=32, default=uuid.uuid4().hex)
+    set_unique_no = models.CharField(max_length=32, default=0)
 
     def __unicode__(self):
         return "month_share: %s" % self.fk_room_member.name

@@ -29,12 +29,18 @@
 
                                 {% for field, value in exp_data.fields.items %}
                                 <tr>
-                                    <td>{{ field }}</td>
+                                    <td>{{ field|title }}</td>
                                     <td>{{ value }}</td>
                                 </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
                                 {% endfor %}
+                                {% if exp_data %}
+                                    <tr>
+                                        <td class="boldme">Total</td>
+                                        <td class="boldme">{{ exp_obj.get_total_exp }}</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                     </table>
 
@@ -60,12 +66,19 @@
 
                                 {% for field, value in inves_data.fields.items %}
                                 <tr>
-                                    <td>{{ field }}</td>
+                                    <td>{{ field|title }}</td>
                                     <td>{{ value }}</td>
                                 </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
-                                {% endfor %}
+                                {% endfor inves_data %}
+                                {% if inves_data %}
+                                <tr>
+                                    <td class="boldme">Total</td>
+                                    <td class="boldme">{{ inves_obj.get_total_inves }}</td>
+                                </tr>
+                                {% endif %}
+
                             </tbody>
                     </table>
 
@@ -88,12 +101,18 @@
                             <tbody>
                                 {% for afp_obj in afp_objs %}
                                 <tr>
-                                    <td>{{ afp_obj.people_name }}</td>
+                                    <td>{{ afp_obj.people_name|title }}</td>
                                     <td>{{ afp_obj.amount }}</td>
                                 </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
                                 {% endfor %}
+                                {% if afp_objs %}
+                                <tr>
+                                    <td class="boldme">Total</td>
+                                    <td class="boldme">{{ inves_obj.get_total_adjustment }}</td>
+                                {% endif %}
+                                </tr>
                             </tbody>
                     </table>
                 </div>
@@ -121,7 +140,7 @@
                             <td>{{ indiv_obj.amount_to_pay }}</td>
                         </tr>
                         {% empty %}
-                            <th style="text-align: center; color: #666;" colspan="3">Blah Blah!!!...</th>
+                            <th style="text-align: center; color: #666;" colspan="3">Add your Roommates Details in Admin Page!!!... </th>
                         {% endfor %}
                     </tbody>
             </table>
@@ -131,4 +150,8 @@
     </div>
 {% endblock %}
 
+{% block content_head %}
+{% endblock %}
 
+{% block content %}
+{% endblock %}

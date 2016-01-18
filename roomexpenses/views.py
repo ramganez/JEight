@@ -4,7 +4,7 @@ import datetime
 
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import ListView
 from django.http import Http404
 from django.core import serializers
@@ -138,10 +138,72 @@ class MonthInvestmentCreate(CreateView):
         else:
             context['adjusment_formset'] = AFPFormSet()
 
+        context['prev_exp_obj'] = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month,
+                                                           is_deleted=False)
         return context
 
     def post(self, request, *args, **kwargs):
         super(MonthInvestmentCreate, self).post(request, *args, **kwargs)
+        form = self.get_form()
+        if form.is_valid():
+            inves_obj = form.save()
+            context = self.get_context_data(**kwargs)
+            adjusment_form = context['adjusment_formset']
+            adjusment_form.instance = inves_obj
+            if adjusment_form.is_valid():
+                adjusment_form.save()
+
+            return self.form_valid(form)
+
+        else:
+            return self.form_invalid(form)
+
+    def get_success_url(self):
+        return reverse('roomexpenses:people_share')
+
+
+class MonthExpenesUpdate(UpdateView):
+
+    def form_valid(self, form):
+        ipdb.set_trace()
+        """
+        If the form is valid, save the associated model. and remove duplicates
+        """
+        monthexp_obj = form.save(commit=False)
+        remove_duplicates(monthexp_obj)
+        monthexp_obj.save()
+
+        return super(MonthExpenesUpdate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('roomexpenses:month_investment')
+
+
+class MonthInvestmentUpdate(UpdateView):
+
+    def form_valid(self, form):
+        """
+        If the form is valid, save the associated model. and remove duplicates
+        """
+        monthinves_obj = form.save(commit=False)
+        remove_duplicates(monthinves_obj)
+
+        return super(MonthInvestmentUpdate, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(MonthInvestmentUpdate, self).get_context_data(**kwargs)
+
+        if self.request.POST:
+            context['adjusment_formset'] = AFPFormSet(self.request.POST, instance=self.object)
+        else:
+            context['adjusment_formset'] = AFPFormSet(instance=self.object)
+
+        context['prev_exp_obj'] = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month,
+                                                           is_deleted=False)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        super(MonthInvestmentUpdate, self).post(request, *args, **kwargs)
         form = self.get_form()
         if form.is_valid():
             inves_obj = form.save()
@@ -165,7 +227,9 @@ class PeopleShareList(ListView):
     def get_context_data(self, **kwargs):
         context = super(PeopleShareList, self).get_context_data(**kwargs)
         a_url = reverse('roomexpenses:month_share')
-        context.update({'action_url': a_url })
+        context.update({'prev_inves_obj': MonthInvestment.objects.get(created_on__month=datetime.datetime.now().month,
+                                                                 is_deleted=False)})
+        context.update({'action_url': a_url})
         return context
 
     def get_queryset(self):
@@ -217,7 +281,7 @@ def expenses_history(request, **kwargs):
     if request.method == 'GET':
 
         exp_fields = ('rent', 'maintenance', 'veg_shop',
-                      'water', 'EB', 'commonEB', 'other')
+                      'water', 'EB', 'cable', 'commonEB', 'other')
 
         inves_fields = ('provision_store', 'gas', 'rice_bag',
                         'new_things')
@@ -252,7 +316,8 @@ def expenses_history(request, **kwargs):
         except:
             afp_objs=None
 
-        return render(request, 'roomexpenses/expenses_history.html', {'exp_data': exp_data, 'inves_data': inves_data,
+        return render(request, 'roomexpenses/expenses_history.html', {'exp_data': exp_data, 'exp_obj':exp_obj[0],
+                                                                      'inves_data': inves_data, 'inves_obj':inves_obj[0],
                                                                       'afp_objs': afp_objs, 'indiv_qs': indiv_qs})
 
     else:

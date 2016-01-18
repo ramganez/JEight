@@ -5,7 +5,8 @@ from django.views.generic.edit import CreateView
 
 from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember
 from roomexpenses.forms import MonthExpenseForm, MonthInvestmentForm
-from roomexpenses.views import (MonthExpenesCreate, MonthInvestmentCreate,
+from roomexpenses.views import (MonthExpenesCreate, MonthExpenesUpdate,
+                                MonthInvestmentCreate, MonthInvestmentUpdate,
                                 PeopleShareList, month_share, expenses_history)
 
 urlpatterns = [
@@ -18,9 +19,17 @@ urlpatterns = [
         MonthExpenesCreate.as_view(form_class=MonthExpenseForm,
                                    template_name='roomexpenses/expenses_form.html'), name='month_expense'),
 
+    url(r'^month-expense/update/(?P<pk>[0-9]+)/$',
+        MonthExpenesUpdate.as_view(form_class=MonthExpenseForm, model=MonthExpense,
+                                   template_name='roomexpenses/expenses_form.html'), name='month_expense_update'),
+
     url(r'^month-investment/$',
         MonthInvestmentCreate.as_view(form_class=MonthInvestmentForm,
-                                     template_name='roomexpenses/investment_form.html'), name='month_investment'),
+                                      template_name='roomexpenses/investment_form.html'), name='month_investment'),
+
+    url(r'^month-investment/update/(?P<pk>[0-9]+)/$',
+        MonthInvestmentUpdate.as_view(form_class=MonthInvestmentForm, model=MonthInvestment,
+                                      template_name='roomexpenses/investment_form.html'), name='month_investment_update'),
 
     url(r'^people-share/$',
         PeopleShareList.as_view(template_name='roomexpenses/people_share.html', model=RoomMember), name='people_share'),

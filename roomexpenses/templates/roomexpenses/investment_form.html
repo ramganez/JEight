@@ -24,12 +24,13 @@
             <div class="six columns">
                 {{ adjusment_formset.management_form }}
                 {% for adform in adjusment_formset %}
+                    {{ adform.id }}
                     <p>{{ adform.people_name.label_tag }}{{ adform.people_name }}</p>
                     <p>{{ adform.amount.label_tag }}{{ adform.amount }}</p>
                 {% endfor %}
             </div>
             </div>
-            <a class="button button-primary btnprev" href="#">Previous</a>
+            <a class="button button-primary btnprev" href="{% url 'roomexpenses:month_expense_update' pk=prev_exp_obj.id %}">Previous</a>
             <input class="button-primary btnnext" value="Next" type="submit">
         </form>
         {% endform %}

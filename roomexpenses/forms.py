@@ -48,4 +48,4 @@ class MonthInvestmentForm(ModelForm):
 #             return data
 
 AFPFormSet = inlineformset_factory(MonthInvestment, AdjustmentFromPeople, fields=('people_name', 'amount'),
-                                   extra=2)
+                                   extra=2, max_num=2)
