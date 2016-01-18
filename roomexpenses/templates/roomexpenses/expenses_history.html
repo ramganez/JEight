@@ -142,6 +142,12 @@
                         {% empty %}
                             <th style="text-align: center; color: #666;" colspan="3">Add your Roommates Details in Admin Page!!!... </th>
                         {% endfor %}
+                        {% if indiv_qs %}
+                            <tr>
+                                <td class="boldme" colspan="2">Total</td>
+                                <td class="boldme" >{{ total_indiv_shares.amount_to_pay__sum }}</td>
+                            </tr>
+                        {% endif %}
                     </tbody>
             </table>
         </div>

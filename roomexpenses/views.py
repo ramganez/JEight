@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import ListView
 from django.http import Http404
 from django.core import serializers
-
+from django.db.models import Sum
 
 from roomexpenses.forms import AFPFormSet
 from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare
@@ -265,12 +265,17 @@ def month_share(request):
 
         data_dict = create_individual_shares(data_dict, individual_choices)
         indiv_qs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month, is_deleted=False)
+        total_indiv_shares = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month,
+                                                            created_on__year=datetime.datetime.now().year,
+                                                            is_deleted=False).aggregate(Sum('amount_to_pay'))
+
 
         # for showing afp details
         afp_objs = current_inves.adjustmentfrompeople_set.all()
 
         return render(request, 'roomexpenses/month_share.html', {'indiv_qs':indiv_qs, 'data_dict': data_dict,
-                                                                 'afp_objs': afp_objs})
+                                                                 'afp_objs': afp_objs,
+                                                                 'total_indiv_shares':total_indiv_shares})
 
     else:
         # return render(request, 'roomexpenses/month_share.html')
@@ -305,8 +310,11 @@ def expenses_history(request, **kwargs):
 
         try:
             indiv_qs = IndividualShare.objects.filter(created_on__month=kwargs['month'],
-                                                       created_on__year=kwargs['year'], is_deleted=False)
+                                                      created_on__year=kwargs['year'], is_deleted=False)
 
+            total_indiv_shares = IndividualShare.objects.filter(created_on__month=kwargs['month'],
+                                                                created_on__year=kwargs['year'],
+                                                                is_deleted=False).aggregate(Sum('amount_to_pay'))
         except:
             indiv_qs = None
 
@@ -316,9 +324,15 @@ def expenses_history(request, **kwargs):
         except:
             afp_objs=None
 
-        return render(request, 'roomexpenses/expenses_history.html', {'exp_data': exp_data, 'exp_obj':exp_obj[0],
-                                                                      'inves_data': inves_data, 'inves_obj':inves_obj[0],
-                                                                      'afp_objs': afp_objs, 'indiv_qs': indiv_qs})
+        context = {'exp_data': exp_data,
+                   'exp_obj':exp_obj[0],
+                   'inves_data': inves_data,
+                   'inves_obj':inves_obj[0],
+                   'afp_objs': afp_objs,
+                   'indiv_qs': indiv_qs,
+                   'total_indiv_shares': total_indiv_shares
+                   }
+        return render(request, 'roomexpenses/expenses_history.html', context)
 
     else:
         # fixme later
