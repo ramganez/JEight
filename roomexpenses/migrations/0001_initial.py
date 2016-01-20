@@ -12,6 +12,33 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='AdjustmentFromPeople',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_on', models.DateTimeField(default=datetime.datetime.now, blank=True)),
+                ('is_deleted', models.BooleanField(default=False)),
+                ('people_name', models.CharField(max_length=50)),
+                ('amount', models.DecimalField(default=0, max_digits=7, decimal_places=2)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='IndividualShare',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_on', models.DateTimeField(default=datetime.datetime.now, blank=True)),
+                ('is_deleted', models.BooleanField(default=False)),
+                ('shared', models.IntegerField(default=0, choices=[(0, b'All'), (1, b'Rent Only'), (2, b'Food Only')])),
+                ('amount_to_pay', models.DecimalField(default=0, max_digits=7, decimal_places=2)),
+                ('set_unique_no', models.CharField(default=0, max_length=32)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
             name='MonthExpense',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -31,7 +58,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='MonthInvesment',
+            name='MonthInvestment',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created_on', models.DateTimeField(default=datetime.datetime.now, blank=True)),
@@ -60,5 +87,15 @@ class Migration(migrations.Migration):
             options={
                 'abstract': False,
             },
+        ),
+        migrations.AddField(
+            model_name='individualshare',
+            name='fk_room_member',
+            field=models.ForeignKey(blank=True, to='roomexpenses.RoomMember', null=True),
+        ),
+        migrations.AddField(
+            model_name='adjustmentfrompeople',
+            name='fk_investment',
+            field=models.ForeignKey(to='roomexpenses.MonthInvestment'),
         ),
     ]
