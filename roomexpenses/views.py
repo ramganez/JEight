@@ -165,7 +165,6 @@ class MonthInvestmentCreate(CreateView):
 class MonthExpenesUpdate(UpdateView):
 
     def form_valid(self, form):
-        ipdb.set_trace()
         """
         If the form is valid, save the associated model. and remove duplicates
         """
