@@ -9,9 +9,11 @@ from django.views.generic import ListView
 from django.http import Http404
 from django.core import serializers
 from django.db.models import Sum
+from django.contrib.auth.decorators import login_required
 
 from roomexpenses.forms import AFPFormSet
 from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare
+from account.views import LoginRequiredMixin
 
 # Create your views here.
 
@@ -103,7 +105,7 @@ def create_individual_shares(data_dict=None, individual_choices=None):
     return data_dict
 
 
-class MonthExpenesCreate(CreateView):
+class MonthExpenesCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
@@ -119,7 +121,7 @@ class MonthExpenesCreate(CreateView):
         return reverse('roomexpenses:month_investment')
 
 
-class MonthInvestmentCreate(CreateView):
+class MonthInvestmentCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
@@ -162,7 +164,7 @@ class MonthInvestmentCreate(CreateView):
         return reverse('roomexpenses:people_share')
 
 
-class MonthExpenesUpdate(UpdateView):
+class MonthExpenesUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         """
@@ -178,7 +180,7 @@ class MonthExpenesUpdate(UpdateView):
         return reverse('roomexpenses:month_investment')
 
 
-class MonthInvestmentUpdate(UpdateView):
+class MonthInvestmentUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         """
@@ -221,7 +223,7 @@ class MonthInvestmentUpdate(UpdateView):
         return reverse('roomexpenses:people_share')
 
 
-class PeopleShareList(ListView):
+class PeopleShareList(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(PeopleShareList, self).get_context_data(**kwargs)
@@ -236,7 +238,7 @@ class PeopleShareList(ListView):
         result = qs.filter(is_deleted=False)
         return result
 
-
+@login_required
 def month_share(request):
 
     if request.method == 'POST':
@@ -280,7 +282,7 @@ def month_share(request):
         # return render(request, 'roomexpenses/month_share.html')
         return redirect('signin')
 
-
+@login_required
 def expenses_history(request, **kwargs):
     if request.method == 'GET':
 

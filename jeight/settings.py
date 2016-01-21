@@ -108,6 +108,9 @@ USE_TZ = True
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
+LOGIN_URL = 'account.views.signin'
+
+LOGOUT_URL = '/'
 
 # config heroku
 # Parse database configuration from $DATABASE_URL
