@@ -1,6 +1,7 @@
 import ipdb
 import uuid
 import datetime
+from dateutil.relativedelta import relativedelta
 
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
@@ -31,6 +32,18 @@ def remove_duplicates(obj):
         dub_objs = MonthInvestment.objects.filter(created_on__month=obj.created_on.month)
         dub_objs.update(is_deleted=True)
         return True
+
+
+def get_next_month(this_month, this_year):
+    # day no need to mention by default 1
+    this_datetime = datetime.datetime(month=int(this_month), year=int(this_year), day=1)
+    return this_datetime + relativedelta(months=1)
+
+
+def get_prev_month(this_month, this_year):
+    # day no need to mention by default 1
+    this_datetime = datetime.datetime(month=int(this_month), year=int(this_year), day=1)
+    return this_datetime - relativedelta(months=1)
 
 
 def create_month_share(exp_obj=None, inves_obj=None):
@@ -248,7 +261,8 @@ def month_share(request):
             raise Http404("Month Expense does not exist")
 
         try:
-            current_inves = MonthInvestment.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False)
+            current_inves = MonthInvestment.objects.get(created_on__month=datetime.datetime.now().month,
+                                                        is_deleted=False)
 
         except:
             raise Http404("Month Investment does not exist")
@@ -284,6 +298,14 @@ def month_share(request):
 
 @login_required
 def expenses_history(request, **kwargs):
+    prev_month = get_prev_month(kwargs['month'], kwargs['year'])
+    prev_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': prev_month.month,
+                                                                        'year': prev_month.year})
+
+    next_month = get_next_month(kwargs['month'], kwargs['year'])
+    next_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': next_month.month,
+                                                                        'year': next_month.year})
+
     if request.method == 'GET':
 
         exp_fields = ('rent', 'maintenance', 'veg_shop',
@@ -293,21 +315,25 @@ def expenses_history(request, **kwargs):
                         'new_things')
 
         try:
-            exp_obj= MonthExpense.objects.filter(created_on__month=kwargs['month'],
-                                            created_on__year=kwargs['year'], is_deleted=False)
-
-            exp_data = serializers.serialize("python", exp_obj,
+            exp_qs = MonthExpense.objects.filter(created_on__month=kwargs['month'],
+                                                  created_on__year=kwargs['year'], is_deleted=False)
+            exp_obj = exp_qs[0]
+            exp_data = serializers.serialize("python", exp_qs,
                                              fields=exp_fields)[0]
+
         except:
             exp_data = None
+            exp_obj = None
 
         try:
-            inves_obj = MonthInvestment.objects.filter(created_on__month=kwargs['month'],
+            inves_qs = MonthInvestment.objects.filter(created_on__month=kwargs['month'],
                                                 created_on__year=kwargs['year'], is_deleted=False)
-            inves_data = serializers.serialize( "python", inves_obj, fields=inves_fields)[0]
+            inves_obj = inves_qs[0]
+            inves_data = serializers.serialize("python", inves_qs, fields=inves_fields)[0]
 
         except:
             inves_data = None
+            inves_obj = None
 
         try:
             indiv_qs = IndividualShare.objects.filter(created_on__month=kwargs['month'],
@@ -323,15 +349,19 @@ def expenses_history(request, **kwargs):
         try:
             afp_objs = inves_obj[0].adjustmentfrompeople_set.all()
         except:
-            afp_objs=None
+            afp_objs = None
 
         context = {'exp_data': exp_data,
-                   'exp_obj':exp_obj[0],
+                   'exp_obj': exp_obj,
                    'inves_data': inves_data,
-                   'inves_obj':inves_obj[0],
+                   'inves_obj': inves_obj,
                    'afp_objs': afp_objs,
                    'indiv_qs': indiv_qs,
-                   'total_indiv_shares': total_indiv_shares
+                   'total_indiv_shares': total_indiv_shares,
+                   'prev_history_url': prev_history_url,
+                   'next_history_url': next_history_url,
+                   'this_month': int(kwargs['month']),
+                   'this_year': int(kwargs['year']),
                    }
         return render(request, 'roomexpenses/expenses_history.html', context)
 

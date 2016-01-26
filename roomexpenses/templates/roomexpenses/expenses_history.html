@@ -1,8 +1,11 @@
 {% extends "roomexpenses/expenses_form.html" %}
-
+{% load staticfiles %}
+{% load roomexpenses_extras %}
 
 {% block content_headx %}
-    <h4>{% now "F" %} - Month Expenses & Investments Details</h4>
+    <a href="{{ prev_history_url }}" class="arrows-left-icon"> <img src="{% static 'images/Arrows-Left-icon.png' %}" /> </a>
+    <a href="{{ next_history_url }}" class="arrows-right-icon"> <img src="{% static 'images/Arrows-Right-icon.png' %}" /> </a>
+    <h4>{{ this_month|month_name }} - {{ this_year }} Expenses & Investments Details</h4>
 {% endblock %}
 
 
