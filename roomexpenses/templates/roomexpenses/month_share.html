@@ -51,7 +51,7 @@
                             <td>{{ afp_obj.amount }}</td>
                         </tr>
                         {% empty %}
-                            <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                            <th style="text-align: center; color: #666;" colspan="2">-- --</th>
                         {% endfor %}
                     </tbody>
             </table>
@@ -77,7 +77,7 @@
                             <td>{{ indiv_obj.amount_to_pay }}</td>
                         </tr>
                         {% empty %}
-                            <th style="text-align: center; color: #666;" colspan="3">Blah Blah!!!...</th>
+                            <th style="text-align: center; color: #666;" colspan="3">-- --</th>
                         {% endfor %}
                         {% if indiv_qs %}
                             <tr>
