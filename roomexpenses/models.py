@@ -40,6 +40,7 @@ class MonthExpense(CommonInfo):
     commonEB = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     veg_shop = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     other = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    is_paid = models.BooleanField(default=False)
 
     def __unicode__(self):
         return "Expense- %s" % self.created_on.strftime('%B')
@@ -54,6 +55,7 @@ class MonthInvestment(CommonInfo):
     new_things = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     gas = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     rice_bag = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    is_paid = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.created_on.strftime('%B')
@@ -74,6 +76,7 @@ class AdjustmentFromPeople(CommonInfo):
     fk_investment = models.ForeignKey(MonthInvestment)
     people_name = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    is_paid = models.BooleanField(default=False)
 
 
 class IndividualShare(CommonInfo):
@@ -87,6 +90,7 @@ class IndividualShare(CommonInfo):
     shared = models.IntegerField(choices=share_choice, default=0)
     amount_to_pay = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     set_unique_no = models.CharField(max_length=32, default=0)
+    is_paid = models.BooleanField(default=False)
 
     def __unicode__(self):
         return "month_share: %s" % self.fk_room_member.name

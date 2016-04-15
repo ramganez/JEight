@@ -7,7 +7,7 @@ from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember
 from roomexpenses.forms import MonthExpenseForm, MonthInvestmentForm
 from roomexpenses.views import (MonthExpenesCreate, MonthExpenesUpdate,
                                 MonthInvestmentCreate, MonthInvestmentUpdate,
-                                PeopleShareList, month_share, expenses_history)
+                                PeopleShareList, month_share, expenses_history, checklist_calc)
 
 urlpatterns = [
     # Examples:
@@ -37,5 +37,7 @@ urlpatterns = [
     url(r'^month-share/$', month_share, name='month_share'),
 
     url(r'^expenses-history/(?P<month>[0-9]+)/(?P<year>[0-9]+)$', expenses_history, name='expenses_history'),
+
+    url(r'^checklist/(?P<month>[0-9]+)/(?P<year>[0-9]+)$', checklist_calc, name='checklist_calc'),
 
 ]

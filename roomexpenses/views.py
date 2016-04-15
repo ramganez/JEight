@@ -7,12 +7,14 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import ListView
-from django.http import Http404
+from django.http import Http404, HttpResponse, JsonResponse
 from django.core import serializers
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
+from django.template.loader import get_template
+from django.template import Context
 
-from roomexpenses.forms import AFPFormSet
+from roomexpenses.forms import AFPFormSet, MonthExpenseForm, MonthInvestmentForm
 from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare
 from account.views import LoginRequiredMixin
 
@@ -251,6 +253,7 @@ class PeopleShareList(LoginRequiredMixin, ListView):
         result = qs.filter(is_deleted=False)
         return result
 
+
 @login_required
 def month_share(request):
 
@@ -320,10 +323,12 @@ def expenses_history(request, **kwargs):
             exp_obj = exp_qs[0]
             exp_data = serializers.serialize("python", exp_qs,
                                              fields=exp_fields)[0]
+            exp_data_form = MonthExpenseForm(instance=exp_obj)
 
         except:
             exp_data = None
             exp_obj = None
+            exp_data_form = None
 
         try:
             inves_qs = MonthInvestment.objects.filter(created_on__month=kwargs['month'],
@@ -331,9 +336,12 @@ def expenses_history(request, **kwargs):
             inves_obj = inves_qs[0]
             inves_data = serializers.serialize("python", inves_qs, fields=inves_fields)[0]
 
+            inves_data_form = MonthInvestmentForm(instance=inves_obj)
+
         except:
             inves_data = None
             inves_obj = None
+            inves_data_form = None
 
         try:
             indiv_qs = IndividualShare.objects.filter(created_on__month=kwargs['month'],
@@ -352,9 +360,9 @@ def expenses_history(request, **kwargs):
         except:
             afp_objs = None
 
-        context = {'exp_data': exp_data,
+        context = {'exp_data_form': exp_data_form,
                    'exp_obj': exp_obj,
-                   'inves_data': inves_data,
+                   'inves_data_form': inves_data_form,
                    'inves_obj': inves_obj,
                    'afp_objs': afp_objs,
                    'indiv_qs': indiv_qs,
@@ -363,9 +371,71 @@ def expenses_history(request, **kwargs):
                    'next_history_url': next_history_url,
                    'this_month': int(kwargs['month']),
                    'this_year': int(kwargs['year']),
+                   'checklist_url': reverse('roomexpenses:checklist_calc', kwargs={
+                       'month': int(kwargs['month']),
+                       'year': int(kwargs['year']),
+                        }),
                    }
         return render(request, 'roomexpenses/expenses_history.html', context)
 
     else:
         # fixme later
         return redirect('signin')
+
+
+def checklist_calc(request, **kwargs):
+    monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
+                                               created_on__year=kwargs['year'])
+
+    monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
+                                               created_on__year=kwargs['year'])
+
+    if request.method == 'POST':
+        ipdb.set_trace()
+        monthexp_form = MonthExpenseForm(request.POST, prefix="monthexp")
+        monthinves_form = MonthInvestmentForm(request.POST, prefix="monthinves")
+
+        if monthexp_form.is_valid() and monthinves_form.is_valid():
+
+            expen_obj = monthexp_form.save(commit=False)
+            inves_obj = monthinves_form.save(commit=False)
+
+            expen_obj.is_paid = True
+            expen_obj.created_on = monthexp_obj.created_on
+            inves_obj.is_paid = True
+            inves_obj.created_on = monthinves_obj.created_on
+            expen_obj.save()
+            inves_obj.save()
+
+            adjusment_formset = AFPFormSet()
+            adjusment_formset.instance = inves_obj
+            if adjusment_formset.is_valid():
+                adjusment_obj = adjusment_formset.save(commit=False)
+                adjusment_obj.is_paid = True
+                adjusment_obj.created_on = monthinves_obj.created_on
+                adjusment_obj.save()
+
+            return HttpResponse("Submitted successfully")
+
+    else:
+        # ipdb.set_trace()
+        if request.is_ajax():
+            expense_form = MonthExpenseForm(instance=monthexp_obj, prefix='monthexp')
+            investment_form = MonthInvestmentForm(instance=monthinves_obj, prefix="monthinves")
+            adjusment_formset = AFPFormSet(instance=monthinves_obj)
+
+            # afp_form
+            # shar_details
+
+            action_url = reverse('roomexpenses:checklist_calc', kwargs={'month': int(kwargs['month']),
+                                                                        'year': int(kwargs['year'])})
+
+            template = get_template('roomexpenses/checklist_column.html')
+            checklist_html = template.render(Context({'expense_form': expense_form,
+                                            'investment_form': investment_form,
+                                                      'adjusment_formset': adjusment_formset,
+                                                      'action_url': action_url}))
+
+            return JsonResponse({"checklist_html": checklist_html})
+
+

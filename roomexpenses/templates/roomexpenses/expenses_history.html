@@ -1,11 +1,55 @@
 {% extends "roomexpenses/expenses_form.html" %}
 {% load staticfiles %}
 {% load roomexpenses_extras %}
+{% load widget_tweaks %}
+
+
+{% block extrahead %}
+    <script>
+
+        function addChkListColumn(data){
+            console.log("inside addChkListColumn")
+            $('#paid_form').append(data.checklist_html)
+        }
+
+        $(document).ready(function(){
+
+
+            $("#checklist").on("click", function(e) {
+                console.log("inside click fun")
+
+                $.ajax({
+                    url: "{{ checklist_url }}",
+                    type: "get",
+                    dataType: "json",
+                    async: 'true',
+
+                    success: function(data) {
+                        addChkListColumn(data);
+                    },
+
+                    error:function(data) {
+                       alert("error in getting from server")
+                    },
+
+                });
+                return false;
+            });
+
+        });
+
+    </script>
+{% endblock %}
+
 
 {% block content_headx %}
     <a href="{{ prev_history_url }}" class="arrows-left-icon"> <img src="{% static 'images/Arrows-Left-icon.png' %}" /> </a>
     <a href="{{ next_history_url }}" class="arrows-right-icon"> <img src="{% static 'images/Arrows-Right-icon.png' %}" /> </a>
-    <h4>{{ this_month|month_name }} - {{ this_year }} </h4>
+    <h4>{{ this_month|month_name }} - {{ this_year }}
+        <a id="checklist" href="#"> CheckList </a>
+        <input type="submit" form="paid_form" value="submit" />
+    </h4>
+
 {% endblock %}
 
 
@@ -14,10 +58,10 @@
 
         <div class="row">
 
-            <div class="four columns">
+            <div id="monthexp-detail" class="four columns">
                 <div class="monthexp-detail">
 
-                    <table class="u-full-width">
+                    <table id="expense_table" class="u-full-width">
                         <thead>
                             <tr>
                                 <th style="text-align: center;" colspan="2"><h5>Expenses</h5></th>
@@ -29,16 +73,15 @@
                             </tr>
                         </thead>
                             <tbody>
-
-                                {% for field, value in exp_data.fields.items %}
-                                <tr>
-                                    <td>{{ field|title }}</td>
-                                    <td>{{ value }}</td>
-                                </tr>
+                                {% for field in exp_data_form %}
+                                    <tr>
+                                        <td>{{ field.label }}</td>
+                                        <td>{{ field.value }}</td>
+                                    </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
                                 {% endfor %}
-                                {% if exp_data %}
+                                {% if exp_data_form %}
                                     <tr>
                                         <td class="boldme">Total</td>
                                         <td class="boldme">{{ exp_obj.get_total_exp }}</td>
@@ -51,7 +94,7 @@
 
             </div>
 
-            <div class="four columns">
+            <div id="monthinves-detail" class="four columns">
                 <div class="monthinves-detail">
 
                     <table class="u-full-width">
@@ -67,15 +110,15 @@
                         </thead>
                             <tbody>
 
-                                {% for field, value in inves_data.fields.items %}
+                                {% for field in inves_data_form %}
                                 <tr>
-                                    <td>{{ field|title }}</td>
-                                    <td>{{ value }}</td>
+                                    <td>{{ field.label }}</td>
+                                    <td>{{ field.value }}</td>
                                 </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
-                                {% endfor inves_data %}
-                                {% if inves_data %}
+                                {% endfor %}
+                                {% if inves_data_form %}
                                 <tr>
                                     <td class="boldme">Total</td>
                                     <td class="boldme">{{ inves_obj.get_total_inves }}</td>
@@ -89,7 +132,7 @@
 
             </div>
 
-            <div class="four columns">
+            <div id="afp-detail" class="four columns">
                 <div class="afp-detail">
                     <table class="u-full-width">
                         <thead>
@@ -155,6 +198,9 @@
             </table>
         </div>
 
+        <form id="paid_form" action="{{ checklist_url }}" method="POST"> {% csrf_token %}
+
+        </form>
 
     </div>
 {% endblock %}
