@@ -7,32 +7,21 @@
 {% block extrahead %}
     <script>
 
-        function addChkListColumn(data){
-            console.log("inside addChkListColumn")
-            $('#paid_form').append(data.checklist_html)
-        }
-
         $(document).ready(function(){
-
 
             $("#checklist").on("click", function(e) {
                 console.log("inside click fun")
 
-                $.ajax({
-                    url: "{{ checklist_url }}",
-                    type: "get",
-                    dataType: "json",
-                    async: 'true',
+                $('.paid_display_off').show();
 
-                    success: function(data) {
-                        addChkListColumn(data);
-                    },
+                // for Month Share Details
+                $('#monthshare_detail').find('thead tr:last').append("<th>Paid</th>")
 
-                    error:function(data) {
-                       alert("error in getting from server")
-                    },
-
+                $('#monthshare_detail').find('tbody tr').not(':last').each (function(e) {
+                    var input_value = $(this).find('td:last').text();
+                    $(this).append('<td><input type="text" value=" '+ input_value +' " name="monthexp-other" ></td>');
                 });
+
                 return false;
             });
 
@@ -46,14 +35,17 @@
     <a href="{{ prev_history_url }}" class="arrows-left-icon"> <img src="{% static 'images/Arrows-Left-icon.png' %}" /> </a>
     <a href="{{ next_history_url }}" class="arrows-right-icon"> <img src="{% static 'images/Arrows-Right-icon.png' %}" /> </a>
     <h4>{{ this_month|month_name }} - {{ this_year }}
-        <a id="checklist" href="#"> CheckList </a>
-        <input type="submit" form="paid_form" value="submit" />
+        {% if checklist_enable %}
+            <a id="checklist" href="#"> CheckList </a>
+            <input type="submit" form="paid_form" value="submit" />
+        {% endif %}
     </h4>
 
 {% endblock %}
 
 
 {% block contentx %}
+    <form id="paid_form" action="{{ checklist_url }}" method="POST"> {% csrf_token %}
     <div class="expense-form">
 
         <div class="row">
@@ -62,13 +54,12 @@
                 <div class="monthexp-detail">
 
                     <table id="expense_table" class="u-full-width">
+                        <caption> <h5>Expenses</h5> </caption>
                         <thead>
                             <tr>
-                                <th style="text-align: center;" colspan="2"><h5>Expenses</h5></th>
-                            </tr>
-                            <tr>
-                                <th>Expense Details</th>
+                                <th> Details </th>
                                 <th>Amount</th>
+                                <th class="paid_display_off" style="display:none;">Paid</th>
 
                             </tr>
                         </thead>
@@ -77,6 +68,7 @@
                                     <tr>
                                         <td>{{ field.label }}</td>
                                         <td>{{ field.value }}</td>
+                                        <td class="paid_display_off" style="display:none" >{{ field }}</td>
                                     </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
@@ -99,12 +91,11 @@
 
                     <table class="u-full-width">
                         <thead>
+                            <caption> <h5>Investment</h5> </caption>
                             <tr>
-                                <th style="text-align: center;" colspan="2"><h5>Investment</h5></th>
-                            </tr>
-                            <tr>
-                                <th>Investment Details</th>
+                                <th> Details </th>
                                 <th>Amount</th>
+                                <th class="paid_display_off" style="display:none;">Paid</th>
 
                             </tr>
                         </thead>
@@ -114,6 +105,7 @@
                                 <tr>
                                     <td>{{ field.label }}</td>
                                     <td>{{ field.value }}</td>
+                                    <td class="paid_display_off" style="display:none" >{{ field }}</td>
                                 </tr>
                                 {% empty %}
                                     <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
@@ -135,30 +127,32 @@
             <div id="afp-detail" class="four columns">
                 <div class="afp-detail">
                     <table class="u-full-width">
+                        <caption> <h5>Adjustment From People </h5> </caption>
                         <thead>
-                            <tr>
-                                <th style="text-align: center;" colspan="3"><h5>Adjustment From People </h5></th>
-                            </tr>
                             <tr>
                                 <th>Name</th>
                                 <th>Amount</th>
+                                {% if afp_objs %}
+                                    <th class="paid_display_off" style="display:none;">Paid</th>
+                                {% endif %}
                             </tr>
                         </thead>
                             <tbody>
-                                {% for afp_obj in afp_objs %}
+                            {% if afp_objs %}
+                                {% for form in adjusment_formset %}
                                 <tr>
-                                    <td>{{ afp_obj.people_name|title }}</td>
-                                    <td>{{ afp_obj.amount }}</td>
+                                    <td>{{ form.initial.people_name|title }}</td>
+                                    <td>{{ form.initial.amount }}</td>
+                                    <td class="paid_display_off" style="display:none" >{{ form.amount }}</td>
                                 </tr>
-                                {% empty %}
-                                    <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
                                 {% endfor %}
-                                {% if afp_objs %}
                                 <tr>
                                     <td class="boldme">Total</td>
                                     <td class="boldme">{{ inves_obj.get_total_adjustment }}</td>
-                                {% endif %}
                                 </tr>
+                            {% else %}
+                                <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                            {% endif %}
                             </tbody>
                     </table>
                 </div>
@@ -167,11 +161,9 @@
         </div>
 
         <div class="monthshare-detail">
-            <table class="u-full-width">
+            <table id="monthshare_detail" class="u-full-width">
+                <caption> <h5> Share Details </h5> </caption>
                 <thead>
-                    <tr>
-                        <th style="text-align: center;" colspan="3"><h5>Share Details</h5></th>
-                    </tr>
                     <tr>
                         <th>Name</th>
                         <th>Shared</th>
@@ -197,8 +189,6 @@
                     </tbody>
             </table>
         </div>
-
-        <form id="paid_form" action="{{ checklist_url }}" method="POST"> {% csrf_token %}
 
         </form>
 

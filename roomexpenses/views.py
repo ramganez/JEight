@@ -13,6 +13,7 @@ from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.template import Context
+from django.core.exceptions import ObjectDoesNotExist
 
 from roomexpenses.forms import AFPFormSet, MonthExpenseForm, MonthInvestmentForm
 from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare
@@ -301,6 +302,7 @@ def month_share(request):
 
 
 def expenses_history(request, **kwargs):
+    ipdb.set_trace()
     prev_month = get_prev_month(kwargs['month'], kwargs['year'])
     prev_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': prev_month.month,
                                                                         'year': prev_month.year})
@@ -323,7 +325,7 @@ def expenses_history(request, **kwargs):
             exp_obj = exp_qs[0]
             exp_data = serializers.serialize("python", exp_qs,
                                              fields=exp_fields)[0]
-            exp_data_form = MonthExpenseForm(instance=exp_obj)
+            exp_data_form = MonthExpenseForm(instance=exp_obj, prefix='monthexp')
 
         except:
             exp_data = None
@@ -336,7 +338,7 @@ def expenses_history(request, **kwargs):
             inves_obj = inves_qs[0]
             inves_data = serializers.serialize("python", inves_qs, fields=inves_fields)[0]
 
-            inves_data_form = MonthInvestmentForm(instance=inves_obj)
+            inves_data_form = MonthInvestmentForm(instance=inves_obj, prefix='monthinves')
 
         except:
             inves_data = None
@@ -356,14 +358,27 @@ def expenses_history(request, **kwargs):
 
         # for showing afp details
         try:
+            adjusment_formset = AFPFormSet(instance=inves_obj)
             afp_objs = inves_obj.adjustmentfrompeople_set.all()
         except:
+            adjusment_formset = None
             afp_objs = None
+
+        checklist_enable = False
+        if exp_obj or inves_obj:
+            # checklist enable only for last month
+            current_month_year = datetime.datetime.now().month, datetime.datetime.now().year
+            last_month_year = get_prev_month(*current_month_year).month, get_prev_month(*current_month_year).year
+            selected_month_year = int(kwargs['month']), int(kwargs['year'])
+
+            if last_month_year == selected_month_year:
+                checklist_enable = True
 
         context = {'exp_data_form': exp_data_form,
                    'exp_obj': exp_obj,
                    'inves_data_form': inves_data_form,
                    'inves_obj': inves_obj,
+                   'adjusment_formset': adjusment_formset,
                    'afp_objs': afp_objs,
                    'indiv_qs': indiv_qs,
                    'total_indiv_shares': total_indiv_shares,
@@ -371,6 +386,7 @@ def expenses_history(request, **kwargs):
                    'next_history_url': next_history_url,
                    'this_month': int(kwargs['month']),
                    'this_year': int(kwargs['year']),
+                   'checklist_enable': checklist_enable,
                    'checklist_url': reverse('roomexpenses:checklist_calc', kwargs={
                        'month': int(kwargs['month']),
                        'year': int(kwargs['year']),
@@ -384,11 +400,17 @@ def expenses_history(request, **kwargs):
 
 
 def checklist_calc(request, **kwargs):
-    monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
-                                               created_on__year=kwargs['year'])
+    try:
+        monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
+                                                   created_on__year=kwargs['year'])
 
-    monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
-                                               created_on__year=kwargs['year'])
+        monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
+                                                   created_on__year=kwargs['year'])
+    except MonthExpense.DoesNotExist:
+        raise Http404("Month Expense does not exist")
+
+    except MonthInvestment.DoesNotExist:
+        raise Http404("Month Investment does not exist")
 
     if request.method == 'POST':
         ipdb.set_trace()
@@ -418,24 +440,5 @@ def checklist_calc(request, **kwargs):
             return HttpResponse("Submitted successfully")
 
     else:
-        # ipdb.set_trace()
-        if request.is_ajax():
-            expense_form = MonthExpenseForm(instance=monthexp_obj, prefix='monthexp')
-            investment_form = MonthInvestmentForm(instance=monthinves_obj, prefix="monthinves")
-            adjusment_formset = AFPFormSet(instance=monthinves_obj)
-
-            # afp_form
-            # shar_details
-
-            action_url = reverse('roomexpenses:checklist_calc', kwargs={'month': int(kwargs['month']),
-                                                                        'year': int(kwargs['year'])})
-
-            template = get_template('roomexpenses/checklist_column.html')
-            checklist_html = template.render(Context({'expense_form': expense_form,
-                                            'investment_form': investment_form,
-                                                      'adjusment_formset': adjusment_formset,
-                                                      'action_url': action_url}))
-
-            return JsonResponse({"checklist_html": checklist_html})
-
-
+        # fixme later
+        return redirect('signin')
