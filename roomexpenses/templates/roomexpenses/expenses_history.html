@@ -12,15 +12,8 @@
             $("#checklist").on("click", function(e) {
                 console.log("inside click fun")
 
+                $('.paid_header_display_off').show();
                 $('.paid_display_off').show();
-
-                // for Month Share Details
-                $('#monthshare_detail').find('thead tr:last').append("<th>Paid</th>")
-
-                $('#monthshare_detail').find('tbody tr').not(':last').each (function(e) {
-                    var input_value = $(this).find('td:last').text();
-                    $(this).append('<td><input type="text" value=" '+ input_value +' " name="monthexp-other" ></td>');
-                });
 
                 return false;
             });
@@ -37,7 +30,13 @@
     <h4>{{ this_month|month_name }} - {{ this_year }}
         {% if checklist_enable %}
             <a id="checklist" href="#"> CheckList </a>
-            <input type="submit" form="paid_form" value="submit" />
+            <!--<input type="submit" form="paid_form" value="submit" />-->
+            <button onclick="submitChecklist('paid_form');" type="button">submit</button>
+        {% else %}
+            {# empty #}
+            <a id="checklist" href="#"> CheckList </a>
+            <!--<input type="submit" form="paid_form" value="submit" />-->
+            <button onclick="submitChecklist('paid_form');" type="button">submit</button>
         {% endif %}
     </h4>
 
@@ -59,11 +58,11 @@
                             <tr>
                                 <th> Details </th>
                                 <th>Amount</th>
-                                <th class="paid_display_off" style="display:none;">Paid</th>
+                                <th class="paid_header_display_off" style="display:none;">Paid</th>
 
                             </tr>
                         </thead>
-                            <tbody>
+                            <tbody id="expense_table_body">
                                 {% for field in exp_data_form %}
                                     <tr>
                                         <td>{{ field.label }}</td>
@@ -89,17 +88,17 @@
             <div id="monthinves-detail" class="four columns">
                 <div class="monthinves-detail">
 
-                    <table class="u-full-width">
+                    <table id="inves_table"  class="u-full-width">
                         <thead>
                             <caption> <h5>Investment</h5> </caption>
                             <tr>
                                 <th> Details </th>
                                 <th>Amount</th>
-                                <th class="paid_display_off" style="display:none;">Paid</th>
+                                <th class="paid_header_display_off" style="display:none;">Paid</th>
 
                             </tr>
                         </thead>
-                            <tbody>
+                            <tbody id="inves_table_body">
 
                                 {% for field in inves_data_form %}
                                 <tr>
@@ -126,23 +125,26 @@
 
             <div id="afp-detail" class="four columns">
                 <div class="afp-detail">
-                    <table class="u-full-width">
+                    <table id="afp_table"  class="u-full-width">
                         <caption> <h5>Adjustment From People </h5> </caption>
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Amount</th>
                                 {% if afp_objs %}
-                                    <th class="paid_display_off" style="display:none;">Paid</th>
+                                    <th class="paid_header_display_off" style="display:none;">Paid</th>
                                 {% endif %}
                             </tr>
                         </thead>
-                            <tbody>
+                            <tbody id="afp_table_body">
                             {% if afp_objs %}
+                                {{ adjusment_formset.management_form }}
                                 {% for form in adjusment_formset %}
+                                {{ form.id }}
                                 <tr>
                                     <td>{{ form.initial.people_name|title }}</td>
                                     <td>{{ form.initial.amount }}</td>
+                                    <td style="display:none" >{{ form.people_name }}</td>
                                     <td class="paid_display_off" style="display:none" >{{ form.amount }}</td>
                                 </tr>
                                 {% endfor %}
@@ -168,6 +170,7 @@
                         <th>Name</th>
                         <th>Shared</th>
                         <th>Amount To Pay</th>
+                        <th class="paid_header_display_off" style="display:none;">Paid</th>
                     </tr>
                 </thead>
                     <tbody>
@@ -176,6 +179,9 @@
                             <td>{{ indiv_obj.fk_room_member.name }}</td>
                             <td>{{ indiv_obj.get_shared_display }}</td>
                             <td>{{ indiv_obj.amount_to_pay }}</td>
+                            <td class="paid_display_off" style="display:none" ><input type="text"
+                                   value="{{ indiv_obj.amount_to_pay }}"
+                                   name="monthinves-provision_store_{{indiv_obj.id}}"></td>
                         </tr>
                         {% empty %}
                             <th style="text-align: center; color: #666;" colspan="3">Add your Roommates Details in Admin Page!!!... </th>

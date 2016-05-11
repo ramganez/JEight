@@ -2,6 +2,7 @@ import ipdb
 import uuid
 import datetime
 from dateutil.relativedelta import relativedelta
+import simplejson
 
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
@@ -20,7 +21,6 @@ from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, Indiv
 from account.views import LoginRequiredMixin
 
 # Create your views here.
-
 
 def remove_duplicates(obj):
     """get the current month object, remove(set is_deleted=True)
@@ -161,6 +161,7 @@ class MonthInvestmentCreate(LoginRequiredMixin, CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        # ipdb.set_trace()
         super(MonthInvestmentCreate, self).post(request, *args, **kwargs)
         form = self.get_form()
         if form.is_valid():
@@ -302,7 +303,7 @@ def month_share(request):
 
 
 def expenses_history(request, **kwargs):
-    ipdb.set_trace()
+    # ipdb.set_trace()
     prev_month = get_prev_month(kwargs['month'], kwargs['year'])
     prev_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': prev_month.month,
                                                                         'year': prev_month.year})
@@ -321,7 +322,7 @@ def expenses_history(request, **kwargs):
 
         try:
             exp_qs = MonthExpense.objects.filter(created_on__month=kwargs['month'],
-                                                  created_on__year=kwargs['year'], is_deleted=False)
+                                                    created_on__year=kwargs['year'], is_deleted=False)
             exp_obj = exp_qs[0]
             exp_data = serializers.serialize("python", exp_qs,
                                              fields=exp_fields)[0]
@@ -399,7 +400,7 @@ def expenses_history(request, **kwargs):
         return redirect('signin')
 
 
-def checklist_calc(request, **kwargs):
+def checklist_calc_x(request, **kwargs):
     try:
         monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
                                                    created_on__year=kwargs['year'])
@@ -442,3 +443,80 @@ def checklist_calc(request, **kwargs):
     else:
         # fixme later
         return redirect('signin')
+
+
+# create json object with result data
+def create_checklist_data(data_dict=None, monthexp_form=None, monthexp_obj=None,
+                          monthinves_form=None, monthinves_obj=None, adjusment_set=None):
+    # for expense
+    exp_fields = monthexp_form.fields.keys()
+    exp_obj_dict = simplejson.loads(serializers.serialize('json', [monthexp_obj, ]))[0]['fields']
+
+    for e in exp_fields:
+        data_dict['expense'].append(exp_obj_dict[e])
+
+    # for investment
+    inves_fields = monthinves_form.fields.keys()
+    inves_obj_dict = simplejson.loads(serializers.serialize('json', [monthinves_obj, ]))[0]['fields']
+
+    for e in inves_fields:
+        data_dict['investment'].append(inves_obj_dict[e])
+
+    # for afp
+    for e in adjusment_set:
+        data_dict['afp'].append(e.amount)
+
+    return data_dict
+
+
+def checklist_calc(request, **kwargs):
+    try:
+        monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
+                                                   created_on__year=kwargs['year'])
+
+        monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
+                                                   created_on__year=kwargs['year'])
+    except MonthExpense.DoesNotExist:
+        raise Http404("Month Expense does not exist")
+
+    except MonthInvestment.DoesNotExist:
+        raise Http404("Month Investment does not exist")
+
+    monthexp_form = MonthExpenseForm(request.POST, prefix="monthexp")
+    monthinves_form = MonthInvestmentForm(request.POST, prefix="monthinves")
+
+    if request.is_ajax():
+        if monthexp_form.is_valid() and monthinves_form.is_valid():
+
+            expen_obj = monthexp_form.save(commit=False)
+            inves_obj = monthinves_form.save(commit=False)
+
+            expen_obj.is_paid = True
+            expen_obj.created_on = monthexp_obj.created_on
+            inves_obj.is_paid = True
+            inves_obj.created_on = monthinves_obj.created_on
+            expen_obj.save()
+            inves_obj.save()
+
+            adjusment_formset = AFPFormSet(request.POST)
+            adjusment_formset.instance = inves_obj
+            if adjusment_formset.is_valid():
+                adjusment_set = adjusment_formset.save(commit=False)
+                for adjusment_obj in adjusment_set:
+                    adjusment_obj.is_paid = True
+                    adjusment_obj.created_on = monthinves_obj.created_on
+                    adjusment_obj.save()
+
+            data_dict = {'expense': [],
+                         'investment': [],
+                         'afp': [],
+                         }
+            result_dict = create_checklist_data(data_dict=data_dict,
+                                                monthexp_form=monthexp_form, monthexp_obj=expen_obj,
+                                                monthinves_form=monthinves_form, monthinves_obj=inves_obj,
+                                                adjusment_set=adjusment_set)
+
+            return JsonResponse(result_dict)
+
+        else:
+            return JsonResponse(monthexp_form.errors, status=400)

@@ -19,3 +19,5 @@ traitlets==4.1.0
 wheel==0.26.0
 whitenoise==2.0.6
 python-dateutil==2.4.2
+simplejson==3.8.2
+
