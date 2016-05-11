@@ -55,6 +55,7 @@ class MonthInvestment(CommonInfo):
     new_things = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     gas = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     rice_bag = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    # last_month_bal = models.DecimalField(max_digits=7, decimal_places=2, default=0, verbose_name='Last Month Balance')
     is_paid = models.BooleanField(default=False)
 
     def __unicode__(self):

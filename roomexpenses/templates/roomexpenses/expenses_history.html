@@ -173,7 +173,7 @@
                         <th class="paid_header_display_off" style="display:none;">Paid</th>
                     </tr>
                 </thead>
-                    <tbody>
+                    <tbody id="monthshare_detail_table_body">
                         {% for indiv_obj in indiv_qs %}
                         <tr>
                             <td>{{ indiv_obj.fk_room_member.name }}</td>
@@ -181,7 +181,7 @@
                             <td>{{ indiv_obj.amount_to_pay }}</td>
                             <td class="paid_display_off" style="display:none" ><input type="text"
                                    value="{{ indiv_obj.amount_to_pay }}"
-                                   name="monthinves-provision_store_{{indiv_obj.id}}"></td>
+                                   name="indivobj_{{indiv_obj.id}}"></td>
                         </tr>
                         {% empty %}
                             <th style="text-align: center; color: #666;" colspan="3">Add your Roommates Details in Admin Page!!!... </th>

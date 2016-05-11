@@ -4,7 +4,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import simplejson
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import ListView
@@ -463,10 +463,20 @@ def create_checklist_data(data_dict=None, monthexp_form=None, monthexp_obj=None,
         data_dict['investment'].append(inves_obj_dict[e])
 
     # for afp
-    for e in adjusment_set:
-        data_dict['afp'].append(e.amount)
+    if adjusment_set:
+        for e in adjusment_set:
+            data_dict['afp'].append(e.amount)
 
     return data_dict
+
+
+def create_paid_indiv_obj(id=None, amount=None):
+    indiv_obj = get_object_or_404(IndividualShare, pk=id)
+    indiv_obj.is_paid = True
+    indiv_obj.amount = amount
+    indiv_obj.save()
+
+    return indiv_obj
 
 
 def checklist_calc(request, **kwargs):
@@ -485,7 +495,13 @@ def checklist_calc(request, **kwargs):
     monthexp_form = MonthExpenseForm(request.POST, prefix="monthexp")
     monthinves_form = MonthInvestmentForm(request.POST, prefix="monthinves")
 
+    error_dict = {'monthexp': None,
+                  'monthinves': None,
+                  'afp': None,
+                  }
+
     if request.is_ajax():
+        # ipdb.set_trace()
         if monthexp_form.is_valid() and monthinves_form.is_valid():
 
             expen_obj = monthexp_form.save(commit=False)
@@ -498,19 +514,36 @@ def checklist_calc(request, **kwargs):
             expen_obj.save()
             inves_obj.save()
 
-            adjusment_formset = AFPFormSet(request.POST)
-            adjusment_formset.instance = inves_obj
-            if adjusment_formset.is_valid():
-                adjusment_set = adjusment_formset.save(commit=False)
-                for adjusment_obj in adjusment_set:
-                    adjusment_obj.is_paid = True
-                    adjusment_obj.created_on = monthinves_obj.created_on
-                    adjusment_obj.save()
+            if monthinves_obj.adjustmentfrompeople_set.all():
+                adjusment_formset = AFPFormSet(request.POST)
+                adjusment_formset.instance = inves_obj
+                if adjusment_formset.is_valid():
+                    adjusment_set = adjusment_formset.save(commit=False)
+                    for adjusment_obj in adjusment_set:
+                        adjusment_obj.is_paid = True
+                        adjusment_obj.created_on = monthinves_obj.created_on
+                        adjusment_obj.save()
+                else:
+                    error_dict['afp'] = adjusment_formset.errors
+                    return JsonResponse(error_dict, status=400)
+            else:
+                adjusment_set = None
+
+            # add is_paid values in IndividualShare objects
+            input_names = [name for name in request.POST.keys() if name.startswith('indivobj')]
+            indiv_fields = [tuple(i.split('_')) for i in input_names]
 
             data_dict = {'expense': [],
                          'investment': [],
                          'afp': [],
+                         'individual_share': [],
                          }
+
+            for each in indiv_fields:
+                amount = request.POST['_'.join(each)]
+                indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
+                data_dict['individual_share'].append(indiv_obj.amount)
+
             result_dict = create_checklist_data(data_dict=data_dict,
                                                 monthexp_form=monthexp_form, monthexp_obj=expen_obj,
                                                 monthinves_form=monthinves_form, monthinves_obj=inves_obj,
@@ -519,4 +552,9 @@ def checklist_calc(request, **kwargs):
             return JsonResponse(result_dict)
 
         else:
-            return JsonResponse(monthexp_form.errors, status=400)
+            error_dict['monthexp'] = monthexp_form.errors.keys()
+            error_dict['monthinves'] = monthinves_form.errors.keys()
+            return JsonResponse(error_dict, status=400)
+
+
+

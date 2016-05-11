@@ -42,14 +42,26 @@ function completeBtnActive(){
 }
 
 function appendchecklistResult(data_array, _id){
-    var rows = $('#'+_id).find('tr:not( :last-child)')
-    total = 0
-    rows.each(function( index, value ){
-        $(this).children().last().empty();
-        $(this).children().last().html(data_array[index]);
-        total += parseInt(data_array[index])
+
+    if (data_array.length != 0){
+        var rows = $('#'+_id).find('tr:not( :last-child)')
+        total = 0
+        rows.each(function( index, value ){
+            $(this).children().last().empty();
+            $(this).children().last().html(data_array[index]);
+            total += parseFloat(data_array[index])
+        });
+        $('#'+_id).children().last().append('<td class="boldme">'+ total.toFixed(2) +'</td>')
+    }
+}
+
+
+function show_errors(_errors, _id){
+
+    $.each(_errors, function(i, each_error_field) {
+        $('#'+_id+each_error_field).css("border-bottom-color", "red");
     });
-    $('#'+_id).children().last().append('<td class="boldme">'+ total +'</td>')
+
 }
 
 
@@ -65,11 +77,25 @@ function submitChecklist(_id){
             appendchecklistResult(data['expense'],'expense_table_body');
             appendchecklistResult(data['investment'],'inves_table_body');
             appendchecklistResult(data['afp'],'afp_table_body');
+            appendchecklistResult(data['individual_share'],'monthshare_detail_table_body');
             $('.paid_display_off').show();
         },
-        error: function()
+        error: function(data)
         {
-           alert("Error"); // show the response
+            error_json = data.responseJSON
+            console.log(error_json['monthinves']);
+            console.log(error_json['monthexp']);
+
+            if ( error_json['monthexp'] !== null && error_json['monthexp'].length != 0 ) {
+//                show_exp_errors
+                show_errors(error_json['monthexp'], "id_monthexp-");
+            }
+
+            if ( error_json['monthinves'] !== null && error_json['monthinves'].length != 0 ) {
+//                show_inves_errors
+                show_errors(error_json['monthinves'], 'id_monthinves-');
+            }
+
         }
     });
 }
