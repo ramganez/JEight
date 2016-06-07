@@ -79,6 +79,8 @@ function submitChecklist(_id){
             appendchecklistResult(data['afp'],'afp_table_body');
             appendchecklistResult(data['individual_share'],'monthshare_detail_table_body');
             $('.paid_display_off').show();
+            console.log(data['result_str'])
+            $('#ResultStr').text(data['result_str']);
         },
         error: function(data)
         {
@@ -98,4 +100,9 @@ function submitChecklist(_id){
 
         }
     });
+
+    $('html, body').animate({
+        scrollTop: $("#ResultStr").offset().top
+    }, 2000);
+
 }

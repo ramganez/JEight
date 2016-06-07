@@ -120,3 +120,89 @@ body{
     display: none;
     }
 */
+
+
+
+/* Anis Css */
+.expense-form table th,
+.expense-form table td{
+    padding:0;
+    height:38px;
+    }
+.expense-form input[type="text"],
+.expense-form input[type="number"] {
+    background: transparent none repeat scroll 0 0;
+    border: 0 none;
+    border-radius: 0;
+    color: #222;
+    font-family: "Raleway","HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    padding: 0;
+    width: 50%;
+    margin:0;
+    text-indent:5px;
+}
+.expense-form input[type="text"]:focus,
+.expense-form input[type="number"]:focus{
+    border:1px solid #e1e1e1;
+    }
+
+/* Larger than mobile */
+@media (min-width: 400px) {
+    }
+
+/* Larger than phablet (also point when grid becomes active) */
+@media (min-width: 550px) {
+    .expense-form input[type="text"],
+    .expense-form input[type="number"]{
+        width:80%;
+        }
+    .customColumns{
+        width:100% !important;
+        margin:10px 0;
+        }
+
+    }
+
+/* Larger than tablet */
+@media (min-width: 750px) {
+.customColumns{
+        width:47% !important;
+        margin-bottom: 15px;
+        margin-left:2%;
+        }
+.fnone{
+    float:none;
+    clear:left;
+    margin:0;
+
+    }
+}
+
+/* Larger than desktop */
+@media (min-width: 1000px) {
+.customColumns {
+    width: 30.6667% !important;
+    margin-left:4%;
+}
+.fnone{
+    float:left;
+    clear:none;
+    margin-top:11px;
+
+    }
+}
+
+/* Larger than Desktop HD */
+@media (min-width: 1200px) {
+    .customColumns {
+    width: 30.6667% !important;
+    margin-left:4%;
+}
+.fnone{
+    float:left;
+    clear:none;
+    margin-top:11px;
+
+    }
+}

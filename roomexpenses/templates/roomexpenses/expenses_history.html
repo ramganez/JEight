@@ -49,16 +49,16 @@
 
         <div class="row">
 
-            <div id="monthexp-detail" class="four columns">
+            <div id="monthexp-detail" class="four columns customColumns">
                 <div class="monthexp-detail">
 
                     <table id="expense_table" class="u-full-width">
                         <caption> <h5>Expenses</h5> </caption>
                         <thead>
                             <tr>
-                                <th> Details </th>
-                                <th>Amount</th>
-                                <th class="paid_header_display_off" style="display:none;">Paid</th>
+                                <th width="35%"> Details </th>
+                                <th width="35%">Amount</th>
+                                <th class="paid_header_display_off" style="display:none;" width="30%">Paid</th>
 
                             </tr>
                         </thead>
@@ -85,16 +85,16 @@
 
             </div>
 
-            <div id="monthinves-detail" class="four columns">
+            <div id="monthinves-detail" class="four columns customColumns">
                 <div class="monthinves-detail">
 
                     <table id="inves_table"  class="u-full-width">
                         <thead>
                             <caption> <h5>Investment</h5> </caption>
                             <tr>
-                                <th> Details </th>
-                                <th>Amount</th>
-                                <th class="paid_header_display_off" style="display:none;">Paid</th>
+                                <th width="35%"> Details </th>
+                                <th width="35%">Amount</th>
+                                <th class="paid_header_display_off" style="display:none;" width="30%">Paid</th>
 
                             </tr>
                         </thead>
@@ -123,16 +123,16 @@
 
             </div>
 
-            <div id="afp-detail" class="four columns">
+            <div id="afp-detail" class="four columns fnone customColumns">
                 <div class="afp-detail">
                     <table id="afp_table"  class="u-full-width">
                         <caption> <h5>Adjustment From People </h5> </caption>
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Amount</th>
+                                <th width="35%">Name</>
+                                <th width="35%">Amount</th>
                                 {% if afp_objs %}
-                                    <th class="paid_header_display_off" style="display:none;">Paid</th>
+                                    <th class="paid_header_display_off" style="display:none;" width="30%">Paid</th>
                                 {% endif %}
                             </tr>
                         </thead>
@@ -167,10 +167,10 @@
                 <caption> <h5> Share Details </h5> </caption>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Shared</th>
-                        <th>Amount To Pay</th>
-                        <th class="paid_header_display_off" style="display:none;">Paid</th>
+                        <th width="25%">Name</th>
+                        <th width="25%">Shared</th>
+                        <th width="25%">Amount To Pay</th>
+                        <th class="paid_header_display_off" style="display:none;" width="25%">Paid</th>
                     </tr>
                 </thead>
                     <tbody id="monthshare_detail_table_body">
@@ -202,6 +202,7 @@
 {% endblock %}
 
 {% block content_head %}
+    <div id="ResultStr"></div>
 {% endblock %}
 
 {% block content %}
