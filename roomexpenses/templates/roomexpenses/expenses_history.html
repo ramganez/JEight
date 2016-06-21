@@ -6,20 +6,21 @@
 
 {% block extrahead %}
     <script>
-
         $(document).ready(function(){
+            url_ = $('#get_checklist_url').val();
 
-            $("#checklist").on("click", function(e) {
-                console.log("inside click fun")
+            if (url_ !== '') {
+                console.log('checklist already have');
+                showHistoryWithChecklist(url_);
+            }
 
-                $('.paid_header_display_off').show();
-                $('.paid_display_off').show();
-
-                return false;
-            });
+            $("#checklist").on("click", function(event) {
+                console.log('inside on click doc ready enableChecklist');
+                enableChecklist();
+                event.preventDefault()
+                });
 
         });
-
     </script>
 {% endblock %}
 
@@ -28,16 +29,9 @@
     <a href="{{ prev_history_url }}" class="arrows-left-icon"> <img src="{% static 'images/Arrows-Left-icon.png' %}" /> </a>
     <a href="{{ next_history_url }}" class="arrows-right-icon"> <img src="{% static 'images/Arrows-Right-icon.png' %}" /> </a>
     <h4>{{ this_month|month_name }} - {{ this_year }}
-        {% if checklist_enable %}
-            <a id="checklist" href="#"> CheckList </a>
-            <!--<input type="submit" form="paid_form" value="submit" />-->
-            <button onclick="submitChecklist('paid_form');" type="button">submit</button>
-        {% else %}
-            {# empty #}
-            <a id="checklist" href="#"> CheckList </a>
-            <!--<input type="submit" form="paid_form" value="submit" />-->
-            <button onclick="submitChecklist('paid_form');" type="button">submit</button>
-        {% endif %}
+            <a id="checklist" href="#" title="Checklist"><img src="{% static 'images/checklist_gray.png' %}" /></a>
+            <a id="savechecklist" title="Save"><img src="{% static 'images/save-icon_gray.png' %}" /></a>
+            <a id="refreshchecklist" href="#" title="Refresh"><img src="{% static 'images/refresh-arrow_gray.png' %}" /></a>
     </h4>
 
 {% endblock %}
@@ -45,6 +39,9 @@
 
 {% block contentx %}
     <form id="paid_form" action="{{ checklist_url }}" method="POST"> {% csrf_token %}
+
+    <input id="get_checklist_url" type="hidden" value="{{ get_checklist_url }}" name="get_checklist_url">
+
     <div class="expense-form">
 
         <div class="row">
@@ -76,6 +73,7 @@
                                     <tr>
                                         <td class="boldme">Total</td>
                                         <td class="boldme">{{ exp_obj.get_total_exp }}</td>
+                                        <td class="boldme paid_total_display_off" style="display:none"> {{ exp_obj.get_total_exp }} </td>
                                     </tr>
                                 {% endif %}
                             </tbody>
@@ -113,6 +111,7 @@
                                 <tr>
                                     <td class="boldme">Total</td>
                                     <td class="boldme">{{ inves_obj.get_total_inves }}</td>
+                                    <td class="boldme paid_total_display_off" style="display:none;">{{ inves_obj.get_total_inves }}</td>
                                 </tr>
                                 {% endif %}
 
@@ -151,6 +150,7 @@
                                 <tr>
                                     <td class="boldme">Total</td>
                                     <td class="boldme">{{ inves_obj.get_total_adjustment }}</td>
+                                    <td class="boldme paid_total_display_off" style="display:none;">{{ inves_obj.get_total_adjustment }}</td>
                                 </tr>
                             {% else %}
                                 <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
@@ -190,6 +190,7 @@
                             <tr>
                                 <td class="boldme" colspan="2">Total</td>
                                 <td class="boldme" >{{ total_indiv_shares.amount_to_pay__sum }}</td>
+                                <td class="boldme paid_total_display_off" style="display:none;">{{ total_indiv_shares.amount_to_pay__sum }}</td>
                             </tr>
                         {% endif %}
                     </tbody>

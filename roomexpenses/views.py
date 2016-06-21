@@ -22,28 +22,33 @@ from account.views import LoginRequiredMixin
 
 # Create your views here.
 
+
 def remove_duplicates(obj, is_paid=False):
     """get the current month object, remove(set is_deleted=True)
     the other objects from the current model"""
 
     if isinstance(obj, MonthExpense):
-        dub_objs = MonthExpense.objects.filter(created_on__month=obj.created_on.month, is_paid=is_paid)
+        dub_objs = MonthExpense.objects.filter(created_on__month=obj.created_on.month,
+                                               created_on__year=obj.created_on.year, is_paid=is_paid)
         dub_objs.update(is_deleted=True)
         return True
 
     elif isinstance(obj, MonthInvestment):
-        dub_objs = MonthInvestment.objects.filter(created_on__month=obj.created_on.month, is_paid=is_paid)
+        dub_objs = MonthInvestment.objects.filter(created_on__month=obj.created_on.month,
+                                                  created_on__year=obj.created_on.year, is_paid=is_paid)
         dub_objs.update(is_deleted=True)
         return True
 
 
-def remove_indiv_duplicates(created_on, is_paid=True):
+def remove_indiv_duplicates(created_on=None, is_paid=False):
     """get the current month object, remove(set is_deleted=True)
     the other objects from the current model"""
 
-    dub_objs = IndividualShare.objects.filter(created_on__month=created_on.month, is_paid=is_paid)
+    dub_objs = IndividualShare.objects.filter(created_on__month=created_on.month, is_paid=is_paid,
+                                              created_on__year=created_on.year)
     dub_objs.update(is_deleted=True)
     return True
+
 
 
 def get_next_month(this_month, this_year):
@@ -110,7 +115,6 @@ def create_individual_shares(data_dict=None, individual_choices=None):
         afp_obj = inves_obj.adjustmentfrompeople_set.all()
 
         indiv_share_obj = IndividualShare(fk_room_member=room_mem_obj, set_unique_no=unique_id)
-        remove_duplicates(indiv_share_obj)
         if '1' in individual_choices[k] and '2' in individual_choices[k]:
             indiv_share_obj.shared = 0
             indiv_share_obj.amount_to_pay = rent_share + food_share
@@ -125,9 +129,6 @@ def create_individual_shares(data_dict=None, individual_choices=None):
 
         indiv_share_obj.save()
 
-    dub_objs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month).exclude(
-            set_unique_no=unique_id)
-    dub_objs.update(is_deleted=True)
     return data_dict
 
 
@@ -139,6 +140,8 @@ class MonthExpenesCreate(LoginRequiredMixin, CreateView):
         """
         monthexp_obj = form.save(commit=False)
         remove_duplicates(monthexp_obj)
+        # if have
+        remove_duplicates(monthexp_obj, is_paid=True)
         monthexp_obj.save()
 
         return super(MonthExpenesCreate, self).form_valid(form)
@@ -155,6 +158,8 @@ class MonthInvestmentCreate(LoginRequiredMixin, CreateView):
         """
         monthinves_obj = form.save(commit=False)
         remove_duplicates(monthinves_obj)
+        # if have
+        remove_duplicates(monthinves_obj, is_paid=True)
 
         return super(MonthInvestmentCreate, self).form_valid(form)
 
@@ -199,6 +204,8 @@ class MonthExpenesUpdate(LoginRequiredMixin, UpdateView):
         """
         monthexp_obj = form.save(commit=False)
         remove_duplicates(monthexp_obj)
+        # if have
+        remove_duplicates(monthexp_obj, is_paid=True)
         monthexp_obj.save()
 
         return super(MonthExpenesUpdate, self).form_valid(form)
@@ -215,6 +222,8 @@ class MonthInvestmentUpdate(LoginRequiredMixin, UpdateView):
         """
         monthinves_obj = form.save(commit=False)
         remove_duplicates(monthinves_obj)
+        # if have
+        remove_duplicates(monthinves_obj, is_paid=True)
 
         return super(MonthInvestmentUpdate, self).form_valid(form)
 
@@ -294,6 +303,9 @@ def month_share(request):
             except:
                 continue
 
+        remove_indiv_duplicates(created_on=datetime.datetime.now())
+        remove_indiv_duplicates(created_on=datetime.datetime.now(), is_paid=True)
+
         data_dict = create_individual_shares(data_dict, individual_choices)
         indiv_qs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month, is_deleted=False)
         total_indiv_shares = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month,
@@ -312,9 +324,9 @@ def month_share(request):
         # return render(request, 'roomexpenses/month_share.html')
         return redirect('signin')
 
-
+@login_required
 def expenses_history(request, **kwargs):
-    # ipdb.set_trace()
+    # import ipdb;ipdb.set_trace()
     prev_month = get_prev_month(kwargs['month'], kwargs['year'])
     prev_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': prev_month.month,
                                                                         'year': prev_month.year})
@@ -377,15 +389,25 @@ def expenses_history(request, **kwargs):
             adjusment_formset = None
             afp_objs = None
 
-        checklist_enable = False
-        if exp_obj or inves_obj:
-            # checklist enable only for last month
-            current_month_year = datetime.datetime.now().month, datetime.datetime.now().year
-            last_month_year = get_prev_month(*current_month_year).month, get_prev_month(*current_month_year).year
-            selected_month_year = int(kwargs['month']), int(kwargs['year'])
+        checklist_available = False
+        get_checklist_url = ''
+        # confirm with one table is enough
+        # if checklist available show the prev checklist form else show form with original value
+        exp_obj_paid = MonthExpense.objects.filter(created_on__month=kwargs['month'],
+                                              created_on__year=kwargs['year'], is_deleted=False, is_paid=True)
+        if exp_obj_paid:
+            checklist_available = True
+            get_checklist_url = reverse('roomexpenses:get_checklist', kwargs={'month': int(kwargs['month']),
+                                                                              'year': int(kwargs['year']),})
 
-            if last_month_year == selected_month_year:
-                checklist_enable = True
+        # if exp_obj or inves_obj:
+        #     # checklist enable only for last month
+        #     current_month_year = datetime.datetime.now().month, datetime.datetime.now().year
+        #     last_month_year = get_prev_month(*current_month_year).month, get_prev_month(*current_month_year).year
+        #     selected_month_year = int(kwargs['month']), int(kwargs['year'])
+
+            # if last_month_year == selected_month_year:
+            #     checklist_enable = True
 
         context = {'exp_data_form': exp_data_form,
                    'exp_obj': exp_obj,
@@ -399,58 +421,14 @@ def expenses_history(request, **kwargs):
                    'next_history_url': next_history_url,
                    'this_month': int(kwargs['month']),
                    'this_year': int(kwargs['year']),
-                   'checklist_enable': checklist_enable,
+                   'checklist_available': checklist_available,
                    'checklist_url': reverse('roomexpenses:checklist_calc', kwargs={
                        'month': int(kwargs['month']),
                        'year': int(kwargs['year']),
                         }),
+                   'get_checklist_url': get_checklist_url,
                    }
         return render(request, 'roomexpenses/expenses_history.html', context)
-
-    else:
-        # fixme later
-        return redirect('signin')
-
-
-def checklist_calc_x(request, **kwargs):
-    try:
-        monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
-                                                   created_on__year=kwargs['year'])
-
-        monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
-                                                   created_on__year=kwargs['year'])
-    except MonthExpense.DoesNotExist:
-        raise Http404("Month Expense does not exist")
-
-    except MonthInvestment.DoesNotExist:
-        raise Http404("Month Investment does not exist")
-
-    if request.method == 'POST':
-        ipdb.set_trace()
-        monthexp_form = MonthExpenseForm(request.POST, prefix="monthexp")
-        monthinves_form = MonthInvestmentForm(request.POST, prefix="monthinves")
-
-        if monthexp_form.is_valid() and monthinves_form.is_valid():
-
-            expen_obj = monthexp_form.save(commit=False)
-            inves_obj = monthinves_form.save(commit=False)
-
-            expen_obj.is_paid = True
-            expen_obj.created_on = monthexp_obj.created_on
-            inves_obj.is_paid = True
-            inves_obj.created_on = monthinves_obj.created_on
-            expen_obj.save()
-            inves_obj.save()
-
-            adjusment_formset = AFPFormSet()
-            adjusment_formset.instance = inves_obj
-            if adjusment_formset.is_valid():
-                adjusment_obj = adjusment_formset.save(commit=False)
-                adjusment_obj.is_paid = True
-                adjusment_obj.created_on = monthinves_obj.created_on
-                adjusment_obj.save()
-
-            return HttpResponse("Submitted successfully")
 
     else:
         # fixme later
@@ -483,6 +461,7 @@ def create_checklist_data(data_dict=None, monthexp_form=None, monthexp_obj=None,
 
 
 def get_checklist_result(created_on=None):
+    # import ipdb;ipdb.set_trace()
     if created_on:
         monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=created_on.month,
                                                 created_on__year=created_on.year)
@@ -502,7 +481,7 @@ def get_checklist_result(created_on=None):
 
         monthinves_diff = monthinves_paid_obj.get_total_inves() - monthinves_obj.get_total_inves()
 
-        afp_diff = monthinves_obj.get_total_adjustment() - monthinves_paid_obj.get_total_adjustment()
+        afp_diff = monthinves_paid_obj.get_total_adjustment() - monthinves_obj.get_total_adjustment()
 
         indiv_qs = IndividualShare.objects.filter(created_on__month=created_on.month,
                                                   created_on__year=created_on.year, is_paid=False, is_deleted=False)
@@ -530,14 +509,16 @@ def create_paid_indiv_obj(id=None, amount=None):
     indiv_obj.pk = None
 
     # clone new paid obj from original
-    indiv_obj.amount = amount
+    indiv_obj.amount_to_pay = amount
     indiv_obj.is_paid = True
     indiv_obj.save()
 
     return indiv_obj
 
 
+@login_required
 def checklist_calc(request, **kwargs):
+    import ipdb;ipdb.set_trace()
     try:
         monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
                                                    created_on__year=kwargs['year'])
@@ -559,7 +540,6 @@ def checklist_calc(request, **kwargs):
                   }
 
     if request.is_ajax():
-        # ipdb.set_trace()
         if monthexp_form.is_valid() and monthinves_form.is_valid():
 
             expen_obj = monthexp_form.save(commit=False)
@@ -584,6 +564,23 @@ def checklist_calc(request, **kwargs):
                         adjusment_obj.created_on = monthinves_obj.created_on
                         adjusment_obj.save()
                 else:
+                    # before render the errors , create is_paid object with paid 0 value for adjusment_obj and indiv_objs
+                    adjusment_set = monthinves_obj.adjustmentfrompeople_set.all()
+                    for adjusment_obj in adjusment_set:
+                        from roomexpenses.models import AdjustmentFromPeople
+                        AdjustmentFromPeople.objects.create(fk_investment=inves_obj, is_paid=True, amount=0,
+                                                    created_on=monthinves_obj.created_on)
+
+                    # add is_paid values in IndividualShare objects
+                    input_names = [name for name in request.POST.keys() if name.startswith('indivobj')]
+                    indiv_fields = [tuple(i.split('_')) for i in input_names]
+
+                    remove_indiv_duplicates(created_on=monthexp_obj.created_on, is_paid=True)
+                    for each in indiv_fields:
+                        amount = request.POST['_'.join(each)]
+                        indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
+                        unique_id = indiv_obj.set_unique_no
+
                     error_dict['afp'] = adjusment_formset.errors
                     return JsonResponse(error_dict, status=400)
             else:
@@ -599,19 +596,26 @@ def checklist_calc(request, **kwargs):
                          'individual_share': [],
                          }
 
-            remove_indiv_duplicates(created_on=monthexp_obj.created_on)
+            remove_indiv_duplicates(created_on=monthexp_obj.created_on, is_paid=True)
             for each in indiv_fields:
                 amount = request.POST['_'.join(each)]
                 indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
-                data_dict['individual_share'].append(indiv_obj.amount)
+                data_dict['individual_share'].append(indiv_obj.amount_to_pay)
+                unique_id = indiv_obj.set_unique_no
 
             result_str = get_checklist_result(created_on=monthexp_obj.created_on)
+
+            get_checklist_url = reverse('roomexpenses:get_checklist', kwargs={'month': int(kwargs['month']),
+                                                                              'year': int(kwargs['year']),})
+
+
 
             result_dict = create_checklist_data(data_dict=data_dict,
                                                 monthexp_form=monthexp_form, monthexp_obj=expen_obj,
                                                 monthinves_form=monthinves_form, monthinves_obj=inves_obj,
                                                 adjusment_set=adjusment_set,)
             result_dict['result_str'] = result_str
+            result_dict['get_checklist_url'] = get_checklist_url
 
             return JsonResponse(result_dict)
 
@@ -621,4 +625,47 @@ def checklist_calc(request, **kwargs):
             return JsonResponse(error_dict, status=400)
 
 
+def get_checklist(request, **kwargs):
+    # import ipdb;ipdb.set_trace()
+    try:
+        monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=True, created_on__month=kwargs['month'],
+                                                   created_on__year=kwargs['year'])
 
+        monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=True, created_on__month=kwargs['month'],
+                                                   created_on__year=kwargs['year'])
+
+    except MonthExpense.DoesNotExist:
+        raise Http404("Month Expense does not exist")
+
+    except MonthInvestment.DoesNotExist:
+        raise Http404("Month Investment does not exist")
+
+    if request.is_ajax():
+        data_dict = {'expense': [],
+                     'investment': [],
+                     'afp': [],
+                     'individual_share': [],
+                     }
+
+        indiv_qs = IndividualShare.objects.filter(is_deleted=False, is_paid=True, created_on__month=kwargs['month'],
+                                    created_on__year=kwargs['year'])
+        for each in indiv_qs:
+            amount = each.amount_to_pay
+            data_dict['individual_share'].append(amount)
+
+        monthexp_form = MonthExpenseForm(request.POST, prefix="monthexp")
+        monthinves_form = MonthInvestmentForm(request.POST, prefix="monthinves")
+
+
+        result_str = get_checklist_result(created_on=monthexp_obj.created_on)
+        result_dict = create_checklist_data(data_dict=data_dict,
+                                            monthexp_form=monthexp_form, monthexp_obj=monthexp_obj,
+                                            monthinves_form=monthinves_form, monthinves_obj=monthinves_obj,
+                                            adjusment_set=monthinves_obj.adjustmentfrompeople_set.all())
+        result_dict['result_str'] = result_str
+
+        return JsonResponse(result_dict)
+
+    else:
+        # fixme later
+        return reverse('signin')
