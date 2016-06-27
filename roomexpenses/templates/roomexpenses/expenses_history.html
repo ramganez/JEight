@@ -20,6 +20,11 @@
                 event.preventDefault()
                 });
 
+            $('#refreshchecklist').on("click", function(event){
+                location.reload();
+                event.preventDefault()
+            });
+
         });
     </script>
 {% endblock %}

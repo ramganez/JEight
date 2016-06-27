@@ -518,7 +518,7 @@ def create_paid_indiv_obj(id=None, amount=None):
 
 @login_required
 def checklist_calc(request, **kwargs):
-    import ipdb;ipdb.set_trace()
+    # import ipdb;ipdb.set_trace()
     try:
         monthexp_obj = MonthExpense.objects.get(is_deleted=False, is_paid=False, created_on__month=kwargs['month'],
                                                    created_on__year=kwargs['year'])
@@ -537,6 +537,7 @@ def checklist_calc(request, **kwargs):
     error_dict = {'monthexp': None,
                   'monthinves': None,
                   'afp': None,
+                  'individual_share': []
                   }
 
     if request.is_ajax():
@@ -578,8 +579,13 @@ def checklist_calc(request, **kwargs):
                     remove_indiv_duplicates(created_on=monthexp_obj.created_on, is_paid=True)
                     for each in indiv_fields:
                         amount = request.POST['_'.join(each)]
-                        indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
-                        unique_id = indiv_obj.set_unique_no
+                        try:
+                            float(amount)
+                            indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
+                            unique_id = indiv_obj.set_unique_no
+
+                        except ValueError:
+                            error_dict['individual_share'].append(each[1])
 
                     error_dict['afp'] = adjusment_formset.errors
                     return JsonResponse(error_dict, status=400)
@@ -588,7 +594,7 @@ def checklist_calc(request, **kwargs):
 
             # add is_paid values in IndividualShare objects
             input_names = [name for name in request.POST.keys() if name.startswith('indivobj')]
-            indiv_fields = [tuple(i.split('_')) for i in input_names]
+            indiv_fields = [tuple(i.split('_')) for i in sorted(input_names, key=lambda x: int(x.split("_")[1]))]
 
             data_dict = {'expense': [],
                          'investment': [],
@@ -599,16 +605,22 @@ def checklist_calc(request, **kwargs):
             remove_indiv_duplicates(created_on=monthexp_obj.created_on, is_paid=True)
             for each in indiv_fields:
                 amount = request.POST['_'.join(each)]
-                indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
-                data_dict['individual_share'].append(indiv_obj.amount_to_pay)
-                unique_id = indiv_obj.set_unique_no
+                try:
+                    float(amount)
+                    indiv_obj = create_paid_indiv_obj(id=each[1], amount=amount)
+                    unique_id = indiv_obj.set_unique_no
+                    data_dict['individual_share'].append(indiv_obj.amount_to_pay)
+
+                except ValueError:
+                    error_dict['individual_share'].append(each[1])
+
+            if error_dict['individual_share']:
+                return JsonResponse(error_dict, status=400)
 
             result_str = get_checklist_result(created_on=monthexp_obj.created_on)
 
             get_checklist_url = reverse('roomexpenses:get_checklist', kwargs={'month': int(kwargs['month']),
                                                                               'year': int(kwargs['year']),})
-
-
 
             result_dict = create_checklist_data(data_dict=data_dict,
                                                 monthexp_form=monthexp_form, monthexp_obj=expen_obj,

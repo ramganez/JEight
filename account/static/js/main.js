@@ -74,9 +74,9 @@ function show_errors(_errors, _id, type){
         });
     }
 
-    if (type === 'indiv'){
+    if (type === 'individual_share'){
         $.each(_errors, function(i, each_error_field) {
-            $('#'+_id+each_error_field).css("border-bottom-color", "red");
+            $("input[name="+_id+each_error_field+"]").css("border-bottom-color", "red");
         });
     }
 }
@@ -139,6 +139,11 @@ function submitChecklist(_id){
             if ( error_json['afp'] !== null && error_json['afp'].length != 0 ) {
 //                show_inves_errors
                 show_errors(error_json['afp'], 'id_adjustmentfrompeople_set-', 'afp');
+            }
+
+            if ( error_json['individual_share'] !== null && error_json['individual_share'].length != 0 ) {
+//                show_inves_errors
+                show_errors(error_json['individual_share'], 'indivobj_', 'individual_share');
             }
 
         }
