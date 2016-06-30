@@ -1,3 +1,5 @@
+# encoding=utf8
+
 import ipdb
 import uuid
 import datetime
@@ -469,7 +471,7 @@ def get_checklist_result(created_on=None):
         monthexp_paid_obj = MonthExpense.objects.get(is_deleted=False, is_paid=True, created_on__month=created_on.month,
                                                      created_on__year=created_on.year)
 
-        monthexp_diff = monthexp_paid_obj.get_total_exp() - monthexp_obj.get_total_exp()
+        monthexp_diff = monthexp_obj.get_total_exp() - monthexp_paid_obj.get_total_exp()
 
         monthinves_obj = MonthInvestment.objects.get(is_deleted=False, is_paid=False,
                                                      created_on__month=created_on.month,
@@ -479,9 +481,9 @@ def get_checklist_result(created_on=None):
                                                           created_on__month=created_on.month,
                                                           created_on__year=created_on.year)
 
-        monthinves_diff = monthinves_paid_obj.get_total_inves() - monthinves_obj.get_total_inves()
+        monthinves_diff = monthinves_obj.get_total_inves() - monthinves_paid_obj.get_total_inves()
 
-        afp_diff = monthinves_paid_obj.get_total_adjustment() - monthinves_obj.get_total_adjustment()
+        afp_diff = monthinves_obj.get_total_adjustment() - monthinves_paid_obj.get_total_adjustment()
 
         indiv_qs = IndividualShare.objects.filter(created_on__month=created_on.month,
                                                   created_on__year=created_on.year, is_paid=False, is_deleted=False)
@@ -494,14 +496,14 @@ def get_checklist_result(created_on=None):
         # total_indiv_paid = reduce((lambda x,y: x+y), indiv_paid_qs)
         total_indiv_paid = indiv_paid_qs.aggregate(Sum('amount_to_pay'))
 
-        indiv_share_diff = total_indiv_paid['amount_to_pay__sum'] - total_indiv['amount_to_pay__sum']
+        indiv_share_diff = total_indiv['amount_to_pay__sum'] - total_indiv_paid['amount_to_pay__sum']
 
-        result = monthexp_diff + monthinves_diff + afp_diff + indiv_share_diff
+        result = monthexp_diff + monthinves_diff - afp_diff - indiv_share_diff
 
         if result >= 0:
-            return "We have {}Rs in our hand".format(result)
+            return "- We have ₹{} in our hand".format(result)
         else:
-            return "We have to add {}Rs to next month".format(result)
+            return "- We have to add ₹{} to next month".format(result)
 
 
 def create_paid_indiv_obj(id=None, amount=None):

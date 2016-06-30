@@ -82,7 +82,7 @@ function show_errors(_errors, _id, type){
 }
 
 function enableChecklist(){
-    console.log("inside checklist enableChecklist")
+    console.log("inside checklist enableChecklist");
     // Enable submit icon
     $("#savechecklist").attr("onclick", "submitChecklist('paid_form');");
 
@@ -94,7 +94,12 @@ function enableChecklist(){
 
 //submit checklist form
 function submitChecklist(_id){
-    console.log("inside submit checklist")
+    console.log("inside submit checklist");
+
+    $('html, body').animate({
+        scrollTop: $("#ResultStr").offset().top
+    }, 2000);
+
     $("#savechecklist").removeAttr('onclick');
 
     $.ajax({
@@ -103,16 +108,12 @@ function submitChecklist(_id){
         data: $('#'+_id).serialize(), // serializes the form's elements.
         success: function(data)
         {
-            $('html, body').animate({
-                scrollTop: $("#ResultStr").offset().top
-            }, 2000);
-
             appendchecklistResult(data['expense'],'expense_table_body');
             appendchecklistResult(data['investment'],'inves_table_body');
             appendchecklistResult(data['afp'],'afp_table_body');
             appendchecklistResult(data['individual_share'],'monthshare_detail_table_body');
 
-            console.log(data['result_str'])
+            console.log(data['result_str']);
             $('#ResultStr').text(data['result_str']);
             $('#get_checklist_url').val(data['get_checklist_url']);
 
