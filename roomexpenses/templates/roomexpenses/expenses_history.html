@@ -72,7 +72,7 @@
                                         <td class="paid_display_off" style="display:none" >{{ field }}</td>
                                     </tr>
                                 {% empty %}
-                                    <th style="text-align: center; color: #666;" colspan="2">Blah Blah!!!...</th>
+                                    <th style="text-align: center; color: #666;" colspan="2">-- --</th>
                                 {% endfor %}
                                 {% if exp_data_form %}
                                     <tr>
@@ -151,7 +151,9 @@
                                     <td style="display:none" >{{ form.people_name }}</td>
                                     <td class="paid_display_off" style="display:none" >{{ form.amount }}</td>
                                 </tr>
-                                {% endfor %}
+                                {% empty %}
+                                    <th style="text-align: center; color: #666;" colspan="2">-- --</th>
+\                                {% endfor %}
                                 <tr>
                                     <td class="boldme">Total</td>
                                     <td class="boldme">{{ inves_obj.get_total_adjustment }}</td>
