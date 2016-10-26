@@ -62,21 +62,21 @@ function show_errors(_errors, _id, type){
 
     if (type === 'expense_inves'){
         $.each(_errors, function(i, each_error_field) {
-            $('#'+_id+each_error_field).css("border-bottom-color", "red");
+            $('#'+_id+each_error_field).css("border", "1px solid red");
         });
     }
 
     if (type === 'afp'){
         $.each(_errors, function(i, each_error_field) {
             if($.isEmptyObject(each_error_field) !== true){
-                $('#'+_id+i.toString()+"-amount").css("border-bottom-color", "red");
+                $('#'+_id+i.toString()+"-amount").css("border", "1px solid red");
                 }
         });
     }
 
     if (type === 'individual_share'){
         $.each(_errors, function(i, each_error_field) {
-            $("input[name="+_id+each_error_field+"]").css("border-bottom-color", "red");
+            $("input[name="+_id+each_error_field+"]").css("border", "1px solid red");
         });
     }
 }
@@ -146,7 +146,7 @@ function submitChecklist(_id){
 //                show_inves_errors
                 show_errors(error_json['individual_share'], 'indivobj_', 'individual_share');
             }
-
+            $('#ResultStr').text("There was an unexpected error. Please try again").css({"color": "red"});
         }
     });
     return false;

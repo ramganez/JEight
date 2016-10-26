@@ -129,8 +129,8 @@ body{
     padding:0;
     height:38px;
     }
-.expense-form input[type="text"],
-.expense-form input[type="number"] {
+.wcheck-list input[type="text"],
+.wcheck-list input[type="number"] {
     background: transparent none repeat scroll 0 0;
     border: 0 none;
     border-radius: 0;
@@ -142,9 +142,11 @@ body{
     margin:0;
     text-indent:5px;
 }
-.expense-form input[type="text"]:focus,
-.expense-form input[type="number"]:focus{
+.wcheck-list input[type="text"]:focus,
+.wcheck-list input[type="number"]:focus{
     border:1px solid #e1e1e1;
+    padding:0;
+    height:38px;
     }
 
 /* Larger than mobile */
