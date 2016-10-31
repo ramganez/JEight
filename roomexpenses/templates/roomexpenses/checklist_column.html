@@ -1,0 +1,67 @@
+<div class="two columns">
+    <div id="monthexp-paid-form" class="monthexp-paid-form">
+
+        <table id="expense_paid_table" class="u-full-width">
+            <thead>
+                <tr>
+                    <th>Expense Paid</th>
+                </tr>
+            </thead>
+                <tbody>
+                    {% for field in expense_form %}
+                        <tr>
+                            <td>{{ field }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="two columns">
+    <div id="monthinves-paid-form" class="monthinves-paid-form">
+
+        <table id="inves_paid_table" class="u-full-width">
+            <thead>
+                <tr>
+                    <th>Investment Paid</th>
+                </tr>
+            </thead>
+                <tbody>
+                    {% for field in investment_form %}
+                        <tr>
+                            <td>{{ field }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="two columns">
+    <div id="monthinves-paid-form" class="monthinves-paid-form">
+
+        <table id="inves_paid_table" class="u-full-width">
+            <thead>
+                <tr>
+                    <th>Adjusment Paid</th>
+                </tr>
+            </thead>
+                <tbody>
+                    {% for form in adjusment_formset %}
+                        <tr>
+                            <td>{{ form.amount }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+
+    </div>
+
+</div>
