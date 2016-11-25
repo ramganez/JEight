@@ -90,6 +90,8 @@ function enableChecklist(){
     $('.paid_header_display_off').show();
     $('.paid_display_off').show();
     $('.paid_total_display_off').show();
+
+    $('.paid_display_off').find('input').css('background', '#eee');
 }
 
 //submit checklist form

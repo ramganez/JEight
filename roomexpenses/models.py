@@ -75,7 +75,7 @@ class MonthInvestment(CommonInfo):
 
 class AdjustmentFromPeople(CommonInfo):
     fk_investment = models.ForeignKey(MonthInvestment)
-    people_name = models.CharField(max_length=50)
+    people_name = models.CharField(max_length=50, default='--')
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     is_paid = models.BooleanField(default=False)
 
