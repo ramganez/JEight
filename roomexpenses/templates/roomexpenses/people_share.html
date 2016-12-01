@@ -21,9 +21,9 @@
                         {% for obj in object_list %}
                             <tr>
                                 <td>{{ obj.name|title }}</td>
-                                <td><input class='checkAll' type="checkbox" name="checkAll" value="{{ forloop.counter }}"/> </td>
-                                <td><input type="checkbox" name="{{ forloop.counter }}" value="1"/></td>
-                                <td><input type="checkbox" name="{{ forloop.counter }}" value="2"/></td>
+                                <td><input class='checkAll' type="checkbox" name="checkAll" value="{{ obj.id }}"/> </td>
+                                <td><input type="checkbox" name="{{ obj.id }}" value="1"/></td>
+                                <td><input type="checkbox" name="{{ obj.id }}" value="2"/></td>
                             </tr>
                         {% empty %}
 
