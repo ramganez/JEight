@@ -19,7 +19,7 @@ from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
 
 from roomexpenses.forms import AFPFormSet, MonthExpenseForm, MonthInvestmentForm
-from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare
+from roomexpenses.models import MonthExpense, MonthInvestment, RoomMember, IndividualShare, AdjustmentFromPeople
 from account.views import LoginRequiredMixin
 
 # Create your views here.
@@ -178,7 +178,6 @@ class MonthInvestmentCreate(LoginRequiredMixin, CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        # ipdb.set_trace()
         super(MonthInvestmentCreate, self).post(request, *args, **kwargs)
         form = self.get_form()
         if form.is_valid():
@@ -187,7 +186,22 @@ class MonthInvestmentCreate(LoginRequiredMixin, CreateView):
             adjusment_form = context['adjusment_formset']
             adjusment_form.instance = inves_obj
             if adjusment_form.is_valid():
-                adjusment_form.save()
+
+                # if form is empty: set initial value
+                if all([not i for i in adjusment_form.cleaned_data]):
+                    AdjustmentFromPeople.objects.create(fk_investment=inves_obj,
+                                                        people_name='--', amount=0)
+                    AdjustmentFromPeople.objects.create(fk_investment=inves_obj,
+                                                        people_name='--', amount=0)
+
+                # if form is partial empty: set initial value
+                elif any([not i for i in adjusment_form.cleaned_data]):
+                    adjusment_form.save()
+                    AdjustmentFromPeople.objects.create(fk_investment=inves_obj,
+                                                        people_name='--', amount=0)
+
+                else:
+                    adjusment_form.save()
 
             return self.form_valid(form)
 
@@ -328,7 +342,6 @@ def month_share(request):
 
 @login_required
 def expenses_history(request, **kwargs):
-    # import ipdb;ipdb.set_trace()
     prev_month = get_prev_month(kwargs['month'], kwargs['year'])
     prev_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': prev_month.month,
                                                                         'year': prev_month.year})
