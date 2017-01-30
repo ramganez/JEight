@@ -111,7 +111,7 @@ def create_individual_shares(data_dict=None, individual_choices=None):
     for k, v in individual_choices.iteritems():
         room_mem_obj = RoomMember.objects.get(id=k)
         inves_obj = MonthInvestment.objects.get(is_deleted=False, created_on__month=datetime.datetime.now().month,
-                                                is_paid=False)
+                                                created_on__year=datetime.datetime.now().year, is_paid=False)
 
         # fixme its needed??
         afp_obj = inves_obj.adjustmentfrompeople_set.all()
@@ -174,7 +174,7 @@ class MonthInvestmentCreate(LoginRequiredMixin, CreateView):
             context['adjusment_formset'] = AFPFormSet()
 
         context['prev_exp_obj'] = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month,
-                                                           is_deleted=False, is_paid=False)
+                                                           created_on__year=datetime.datetime.now().year, is_deleted=False, is_paid=False)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -252,6 +252,7 @@ class MonthInvestmentUpdate(LoginRequiredMixin, UpdateView):
             context['adjusment_formset'] = AFPFormSet(instance=self.object)
 
         context['prev_exp_obj'] = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month,
+                                                           created_on__year=datetime.datetime.now().year,
                                                            is_deleted=False, is_paid=False)
         return context
 
@@ -281,7 +282,8 @@ class PeopleShareList(LoginRequiredMixin, ListView):
         context = super(PeopleShareList, self).get_context_data(**kwargs)
         a_url = reverse('roomexpenses:month_share')
         context.update({'prev_inves_obj': MonthInvestment.objects.get(created_on__month=datetime.datetime.now().month,
-                                                                 is_deleted=False, is_paid=False)})
+                                                                      created_on__year=datetime.datetime.now().year,
+                                                                      is_deleted=False, is_paid=False)})
         context.update({'action_url': a_url})
         return context
 
@@ -297,12 +299,13 @@ def month_share(request):
     if request.method == 'POST':
         try:
             current_exp = MonthExpense.objects.get(created_on__month=datetime.datetime.now().month, is_deleted=False,
-                                                   is_paid=False)
+                                                   created_on__year=datetime.datetime.now().year, is_paid=False)
         except:
             raise Http404("Month Expense does not exist")
 
         try:
             current_inves = MonthInvestment.objects.get(created_on__month=datetime.datetime.now().month,
+                                                        created_on__year=datetime.datetime.now().year,
                                                         is_deleted=False, is_paid=False)
 
         except:
@@ -323,7 +326,8 @@ def month_share(request):
         remove_indiv_duplicates(created_on=datetime.datetime.now(), is_paid=True)
 
         data_dict = create_individual_shares(data_dict, individual_choices)
-        indiv_qs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month, is_deleted=False)
+        indiv_qs = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month,
+                                                  created_on__year=datetime.datetime.now().year, is_deleted=False)
         total_indiv_shares = IndividualShare.objects.filter(created_on__month=datetime.datetime.now().month,
                                                             created_on__year=datetime.datetime.now().year,
                                                             is_deleted=False).aggregate(Sum('amount_to_pay'))
