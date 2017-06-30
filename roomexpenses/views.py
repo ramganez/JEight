@@ -344,7 +344,7 @@ def month_share(request):
         # return render(request, 'roomexpenses/month_share.html')
         return redirect('signin')
 
-@login_required
+
 def expenses_history(request, **kwargs):
     prev_month = get_prev_month(kwargs['month'], kwargs['year'])
     prev_history_url = reverse('roomexpenses:expenses_history', kwargs={'month': prev_month.month,

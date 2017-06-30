@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load floppyforms %}
 
+
+
 {% block nav %}
     <div class="header">
         <div class="container">
@@ -9,13 +11,16 @@
 
                     {% now 'm' as copymonth %}
                     {% now 'Y' as copyyear %}
-
                     <li class="navbar-item">
-                        <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=copymonth year=copyyear %}">
-                        View History</a>
+                        <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=copymonth|add:-1 year=copyyear %}">
+                        Dashboard</a>
                     </li>
                     <li class="navbar-item"><a href="{% url 'roomexpenses:month_expense' %}">Home</a></li>
-                    <li class="navbar-item"><a href="{% url 'signout' %}">Signout</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="navbar-item"><a href="{% url 'signout' %}">Signout</a></li>
+                    {% else %}
+                        <li class="navbar-item"><a href="{% url 'signin' %}">Signin</a></li>
+                    {% endif %}
                 </ul>
             <div class="clear"></div>
             </nav>

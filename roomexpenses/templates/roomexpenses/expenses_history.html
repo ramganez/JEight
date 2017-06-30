@@ -34,9 +34,11 @@
     <a href="{{ prev_history_url }}" class="arrows-left-icon"> <img src="{% static 'images/Arrows-Left-icon.png' %}" /> </a>
     <a href="{{ next_history_url }}" class="arrows-right-icon"> <img src="{% static 'images/Arrows-Right-icon.png' %}" /> </a>
     <h4>{{ this_month|month_name }} - {{ this_year }}
+            {% if user.is_authenticated %}
             <a id="checklist" href="#" title="Checklist"><img src="{% static 'images/checklist_gray.png' %}" /></a>
             <a id="savechecklist" title="Save"><img src="{% static 'images/save-icon_gray.png' %}" /></a>
             <a id="refreshchecklist" href="#" title="Refresh"><img src="{% static 'images/refresh-arrow_gray.png' %}" /></a>
+            {% endif %}
     </h4>
 
 {% endblock %}
