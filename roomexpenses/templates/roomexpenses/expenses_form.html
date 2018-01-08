@@ -15,7 +15,7 @@
 			
 		    {% if copymonth == '01' %}
 			{# hardcoded - I guess pepole will not use this application after 2018 ;) #}
-                        <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=12 year=2018 %}">
+                        <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=12 year=2017 %}">
                         Dashboard</a>
 		    {% else %} 
                         <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=copymonth|add:-1 year=copyyear %}">
