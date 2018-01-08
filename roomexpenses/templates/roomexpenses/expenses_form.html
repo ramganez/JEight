@@ -12,8 +12,13 @@
                     {% now 'm' as copymonth %}
                     {% now 'Y' as copyyear %}
                     <li class="navbar-item">
+		    {% if copymonth == '01' %}
+                        <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=12 year=copyyear %}">
+                        Dashboard</a>
+		    {% else %} 
                         <a id="date-picker" href="{% url 'roomexpenses:expenses_history' month=copymonth|add:-1 year=copyyear %}">
                         Dashboard</a>
+		    {% endif %} 
                     </li>
                     <li class="navbar-item"><a href="{% url 'roomexpenses:month_expense' %}">Home</a></li>
                     {% if user.is_authenticated %}
