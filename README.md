@@ -1,4 +1,11 @@
-##### Application for Calculating Room Expenses ([Demo](http://j-eight.herokuapp.com/roomexpenses/expenses-history/7/2017))
+# Application for calculate & maintain Room Expenses ([Link](http://j-eight.herokuapp.com/signin/))
 
-It keeps track of monthly expences and investments. 
+The app helps to calculate and maintain Expenses when I was staying with my friends.
 
+Adding Expenses: 
+
+![](./j-eight-demo-1.gif)
+
+Updating Expenses:
+
+![](./j-eight-demo-2.gif)
